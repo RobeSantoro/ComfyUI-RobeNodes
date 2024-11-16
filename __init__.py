@@ -1,95 +1,69 @@
-class Example:
+import os
+
+class VideoListNode:
     """
-    A example node
+    A node that lists video files in a specified directory and cycles through them based on an index.
 
     Class methods
     -------------
     INPUT_TYPES (dict): 
-        Tell the main program input parameters of nodes.
+        Defines the input parameters for the node.
 
     Attributes
     ----------
     RETURN_TYPES (`tuple`): 
-        The type of each element in the output tulple.
-    RETURN_NAMES (`tuple`):
-        Optional: The name of each output in the output tulple.
+        The type of each element in the output tuple.
     FUNCTION (`str`):
-        The name of the entry-point method. For example, if `FUNCTION = "execute"` then it will run Example().execute()
-    OUTPUT_NODE ([`bool`]):
-        If this node is an output node that outputs a result/image from the graph. The SaveImage node is an example.
-        The backend iterates on these output nodes and tries to execute all their parents if their parent graph is properly connected.
-        Assumed to be False if not present.
+        The name of the entry-point method.
     CATEGORY (`str`):
-        The category the node should appear in the UI.
-    execute(s) -> tuple || None:
-        The entry point method. The name of this method must be the same as the value of property `FUNCTION`.
-        For example, if `FUNCTION = "execute"` then this method's name must be `execute`, if `FUNCTION = "foo"` then it must be `foo`.
+        The category under which this node will appear in the UI.
     """
-    def __init__(self):
-        pass
-    
-    @classmethod
-    def INPUT_TYPES(s):
-        """
-            Return a dictionary which contains config for all input fields.
-            Some types (string): "MODEL", "VAE", "CLIP", "CONDITIONING", "LATENT", "IMAGE", "INT", "STRING", "FLOAT".
-            Input types "INT", "STRING" or "FLOAT" are special values for fields on the node.
-            The type can be a list for selection.
 
-            Returns: `dict`:
-                - Key input_fields_group (`string`): Can be either required, hidden or optional. A node class must have property `required`
-                - Value input_fields (`dict`): Contains input fields config:
-                    * Key field_name (`string`): Name of a entry-point method's argument
-                    * Value field_config (`tuple`):
-                        + First value is a string indicate the type of field or a list for selection.
-                        + Secound value is a config for type "INT", "STRING" or "FLOAT".
-        """
+    @classmethod
+    def INPUT_TYPES(cls):
         return {
             "required": {
-                "image": ("IMAGE",),
-                "int_field": ("INT", {
-                    "default": 0, 
-                    "min": 0, #Minimum value
-                    "max": 4096, #Maximum value
-                    "step": 64 #Slider's step
+                "directory": ("STRING", {
+                    "default": "E:/COMFY/videos",  # Change this to your desired default directory
                 }),
-                "float_field": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01}),
-                "print_to_screen": (["enable", "disable"],),
-                "string_field": ("STRING", {
-                    "multiline": False, #True if you want the field to look like the one on the ClipTextEncode node
-                    "default": "Hello World!"
+                "index": ("INT", {
+                    "default": 0,
+                    "min": 0,
+                }),
+                "cycle": (["enable", "disable"], {
+                    "default": "enable",
                 }),
             },
         }
 
-    RETURN_TYPES = ("IMAGE",)
-    #RETURN_NAMES = ("image_output_name",)
+    RETURN_TYPES = ("LIST", "STRING")
+    FUNCTION = "execute"
+    CATEGORY = "Robe"
 
-    FUNCTION = "test"
+    def execute(self, directory, index, cycle):
+        videos = self.list_videos(directory)
+        if not videos:
+            return ([], None)  # No videos found
+        
+        # Cycle logic
+        if cycle == "enable":
+            index = index % len(videos)  # Wrap around using modulo
+        else:
+            index = min(index, len(videos) - 1)  # Limit to max index
 
-    #OUTPUT_NODE = False
+        return (videos, videos[index])  # Return both the list and the current video
 
-    CATEGORY = "Example"
-
-    def test(self, image, string_field, int_field, float_field, print_to_screen):
-        if print_to_screen == "enable":
-            print(f"""Your input contains:
-                string_field aka input text: {string_field}
-                int_field: {int_field}
-                float_field: {float_field}
-            """)
-        #do some processing on the image, in this example I just invert it
-        image = 1.0 - image
-        return (image,)
+    def list_videos(self, directory):
+        video_extensions = ['.mp4', '.avi', '.mov', '.mkv']
+        return [f for f in os.listdir(directory) if os.path.splitext(f)[1].lower() in video_extensions]
 
 
 # A dictionary that contains all nodes you want to export with their names
-# NOTE: names should be globally unique
 NODE_CLASS_MAPPINGS = {
-    "Example": Example
+    "VideoListNode": VideoListNode
 }
 
 # A dictionary that contains the friendly/humanly readable titles for the nodes
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "Example": "Example Node"
+    "VideoListNode": "Video List Node"
 }
