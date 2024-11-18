@@ -1,18 +1,20 @@
+"""
+Custom nodes for the Comfy UI stable diffusion client.
+"""
+
 import os
+import json
 
 
 class ListVideoPath:
-    """
-    The category under which this node will appear in the UI.
-    """
+    """ List the video files full path in a directory """
 
     @classmethod
     def INPUT_TYPES(cls):
-        """ Comfy UI node input types """
         return {
             "required": {
                 "directory": ("STRING", {
-                    "default": "W:\ATTRAVERSO\gammaPre\masks_portrait_3.4",  # Change this to your desired default directory
+                    "default": "W:\\ATTRAVERSO\\gammaPre\\masks_portrait_3.4",
                 }),
                 "index": ("INT", {
                     "default": 0,
@@ -25,13 +27,11 @@ class ListVideoPath:
         }
 
     RETURN_TYPES = ("LIST", "STRING")
+    RETURN_NAMES = ("videos", "selected_video")
     FUNCTION = "execute"
     CATEGORY = "Robe"
 
     def execute(self, directory, index, cycle):
-        """ 
-        Returns a list of video files in the specified directory and the full path of the currently selected video.
-        """
 
         videos = self.list_videos(directory)
         if not videos:
@@ -44,29 +44,34 @@ class ListVideoPath:
             index = min(index, len(videos) - 1)  # Limit to max index
 
         selected_video = os.path.join(directory, videos[index])
+
         # Return both the list and the full path of the current video
         return (videos, selected_video)
 
     def list_videos(self, directory):
-        """
-        Returns a list of video files in the specified directory.
-        """
+        videos = []
         video_extensions = ['.mp4', '.avi', '.mov', '.mkv']
-        return [f for f in os.listdir(directory) if os.path.splitext(f)[1].lower() in video_extensions]
+
+        if not os.path.exists(directory):
+            return []
+        
+        for filename in os.listdir(directory):
+            if os.path.splitext(filename)[1].lower() in video_extensions:
+                videos.append(filename)
+        
+        return videos
 
 
 class ListImagePath:
-    """
-    The category under which this node will appear in the UI.
-    """
+    """ List the image files path in a directory """
 
     @classmethod
     def INPUT_TYPES(cls):
-        """ Comfy UI node input types """
         return {
             "required": {
                 "directory": ("STRING", {
-                    "default": "E:/COMFY/images",  # Change this to your desired default directory
+                    # Change this to your desired default directory
+                    "default": "W:\\ATTRAVERSO\\OPERE\\scrape\\images_renamed\\Selection",
                 }),
                 "index": ("INT", {
                     "default": 0,
@@ -79,13 +84,11 @@ class ListImagePath:
         }
 
     RETURN_TYPES = ("LIST", "STRING")
+    RETURN_NAMES = ("images", "selected_image")
     FUNCTION = "execute"
     CATEGORY = "Robe"
 
     def execute(self, directory, index, cycle):
-        """
-        Returns a list of image files in the specified directory and the full path of the currently selected image.
-        """
         images = self.list_images(directory)
         if not images:
             return ([], None)  # No images found
@@ -97,19 +100,14 @@ class ListImagePath:
             index = min(index, len(images) - 1)  # Limit to max index
 
         selected_image = os.path.join(directory, images[index])
-        # Return both the list and the full path of the current image
+
         return (images, selected_image)
 
-    def list_images(self, directory):
-        """
-        Returns a list of image files in the specified directory.
-        """
-        image_extensions = ['.jpg', '.jpeg', '.png', '.gif']
-        return [f for f in os.listdir(directory) if os.path.splitext(f)[1].lower() in image_extensions]
+
 
 
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
-    "List Video Path": ListVideoPath,
-    "List Image Path": ListImagePath
+    "List Video Path 🐤": ListVideoPath,
+    "List Image Path 🐤": ListImagePath
 }
