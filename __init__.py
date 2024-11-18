@@ -4,7 +4,9 @@ Custom nodes for the Comfy UI stable diffusion client.
 
 import os
 import json
-from PIL import Image
+from PIL import Image, ImageOps
+import numpy as np
+import torch
 
 
 class ListVideoPath:
@@ -28,7 +30,7 @@ class ListVideoPath:
         }
 
     RETURN_TYPES = ("LIST", "STRING", "INT")
-    RETURN_NAMES = ("videos", "selected_video", "count")
+    RETURN_NAMES = ("videos_path", "selected_video_path", "count")
     FUNCTION = "execute"
     CATEGORY = "Robe"
 
@@ -84,15 +86,15 @@ class ListImagePath:
             },
         }
 
-    RETURN_TYPES = ("LIST", "STRING", "INT", "INT", "INT")
-    RETURN_NAMES = ("images", "selected_image", "count", "width", "height")
+    RETURN_TYPES = ("LIST", "STRING", "INT", "INT", "INT", "IMAGE")
+    RETURN_NAMES = ("images_path", "selected_image_path", "count", "width", "height", "image")
     FUNCTION = "execute"
     CATEGORY = "Robe"
 
     def execute(self, directory, index, cycle):
         images = self.list_images(directory)
         if not images:
-            return ([], None, 0, 0, 0)  # No images found
+            return ([], None, 0, 0, 0, None)  # No images found
 
         # Cycle logic
         if cycle == "enable":
@@ -102,17 +104,24 @@ class ListImagePath:
 
         selected_image = os.path.join(directory, images[index])
         
-        # Get image dimensions
+        # Get image dimensions and load image
         width = 0
         height = 0
+        image_tensor = None
         try:
             with Image.open(selected_image) as img:
+                img = ImageOps.exif_transpose(img)
+                img = img.convert("RGB")
                 width, height = img.size
+                # Convert to tensor
+                image = np.array(img).astype(np.float32) / 255.0
+                image_tensor = torch.from_numpy(image)[None,]
         except Exception:
-            pass
+            # Return empty tensor if image can't be loaded
+            image_tensor = torch.zeros((1, 64, 64, 3), dtype=torch.float32)
 
-        # Return the list, selected image path, count, and dimensions
-        return (images, selected_image, len(images), width, height)
+        # Return the list, selected image path, count, dimensions and image tensor
+        return (images, selected_image, len(images), width, height, image_tensor)
 
     def list_images(self, directory):
         image_files = []
