@@ -4,6 +4,7 @@ Custom nodes for the Comfy UI stable diffusion client.
 
 import os
 import json
+from PIL import Image
 
 
 class ListVideoPath:
@@ -83,15 +84,15 @@ class ListImagePath:
             },
         }
 
-    RETURN_TYPES = ("LIST", "STRING", "INT")
-    RETURN_NAMES = ("images", "selected_image", "count")
+    RETURN_TYPES = ("LIST", "STRING", "INT", "INT", "INT")
+    RETURN_NAMES = ("images", "selected_image", "count", "width", "height")
     FUNCTION = "execute"
     CATEGORY = "Robe"
 
     def execute(self, directory, index, cycle):
         images = self.list_images(directory)
         if not images:
-            return ([], None, 0)  # No images found
+            return ([], None, 0, 0, 0)  # No images found
 
         # Cycle logic
         if cycle == "enable":
@@ -100,9 +101,31 @@ class ListImagePath:
             index = min(index, len(images) - 1)  # Limit to max index
 
         selected_image = os.path.join(directory, images[index])
+        
+        # Get image dimensions
+        width = 0
+        height = 0
+        try:
+            with Image.open(selected_image) as img:
+                width, height = img.size
+        except Exception:
+            pass
 
-        # Return the list, selected image path, and count
-        return (images, selected_image, len(images))
+        # Return the list, selected image path, count, and dimensions
+        return (images, selected_image, len(images), width, height)
+
+    def list_images(self, directory):
+        image_files = []
+        image_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+
+        if not os.path.exists(directory):
+            return []
+        
+        for filename in os.listdir(directory):
+            if os.path.splitext(filename)[1].lower() in image_extensions:
+                image_files.append(filename)
+        
+        return image_files
 
 
 # A dictionary that contains all nodes you want to export with their names
