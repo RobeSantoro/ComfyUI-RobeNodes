@@ -26,8 +26,8 @@ class ListVideoPath:
             },
         }
 
-    RETURN_TYPES = ("LIST", "STRING")
-    RETURN_NAMES = ("videos", "selected_video")
+    RETURN_TYPES = ("LIST", "STRING", "INT")
+    RETURN_NAMES = ("videos", "selected_video", "count")
     FUNCTION = "execute"
     CATEGORY = "Robe"
 
@@ -35,7 +35,7 @@ class ListVideoPath:
 
         videos = self.list_videos(directory)
         if not videos:
-            return ([], None)  # No videos found
+            return ([], None, 0)  # No videos found
 
         # Cycle logic
         if cycle == "enable":
@@ -45,8 +45,8 @@ class ListVideoPath:
 
         selected_video = os.path.join(directory, videos[index])
 
-        # Return both the list and the full path of the current video
-        return (videos, selected_video)
+        # Return the list, full path of the current video, and count
+        return (videos, selected_video, len(videos))
 
     def list_videos(self, directory):
         videos = []
@@ -83,15 +83,15 @@ class ListImagePath:
             },
         }
 
-    RETURN_TYPES = ("LIST", "STRING")
-    RETURN_NAMES = ("images", "selected_image")
+    RETURN_TYPES = ("LIST", "STRING", "INT")
+    RETURN_NAMES = ("images", "selected_image", "count")
     FUNCTION = "execute"
     CATEGORY = "Robe"
 
     def execute(self, directory, index, cycle):
         images = self.list_images(directory)
         if not images:
-            return ([], None)  # No images found
+            return ([], None, 0)  # No images found
 
         # Cycle logic
         if cycle == "enable":
@@ -101,9 +101,8 @@ class ListImagePath:
 
         selected_image = os.path.join(directory, images[index])
 
-        return (images, selected_image)
-
-
+        # Return the list, selected image path, and count
+        return (images, selected_image, len(images))
 
 
 # A dictionary that contains all nodes you want to export with their names
