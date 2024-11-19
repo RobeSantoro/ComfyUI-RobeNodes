@@ -10,7 +10,10 @@ import torch
 
 
 class ListVideoPath:
-    """ List the video files full path in a directory """
+    """
+    List the video files full path in a directory
+    and output the selected video path by specified index
+    """
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -66,7 +69,10 @@ class ListVideoPath:
 
 
 class ListImagePath:
-    """ List the image files path in a directory """
+    """
+    List the image files path in a directory and output the selected
+    image path, count, dimensions and image tensor
+    """
 
     @classmethod
     def INPUT_TYPES(cls):
