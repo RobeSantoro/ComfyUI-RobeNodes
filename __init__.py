@@ -156,6 +156,9 @@ class ListModelPath:
                 "directory": ("STRING", {
                     "default": "E:\\MODELS\\checkpoints",
                 }),
+                "include_subdirectories": (["enable", "disable"], {
+                    "default": "disable",
+                }),
                 "index": ("INT", {
                     "default": 0,
                     "min": 0,
@@ -171,29 +174,36 @@ class ListModelPath:
     FUNCTION = "execute"
     CATEGORY = "RobeNodes"
 
-    def list_models(self, directory):
+    def list_models(self, directory, include_subdirectories):
         models = []
         model_extensions = ['.safetensors']
 
         if not os.path.exists(directory):
             return []
         
-        for root, _, files in os.walk(directory):
-            for filename in files:
+        if include_subdirectories == "enable":
+            # Recursive search through subdirectories
+            for root, _, files in os.walk(directory):
+                for filename in files:
+                    if os.path.splitext(filename)[1].lower() in model_extensions:
+                        # Get the relative path from the base directory
+                        rel_path = os.path.relpath(root, directory)
+                        if rel_path == '.':
+                            # If file is in the root directory, just use filename
+                            models.append(filename)
+                        else:
+                            # Otherwise combine subdirectory + filename
+                            models.append(os.path.join(rel_path, filename))
+        else:
+            # Only search in the root directory
+            for filename in os.listdir(directory):
                 if os.path.splitext(filename)[1].lower() in model_extensions:
-                    # Get the relative path from the base directory
-                    rel_path = os.path.relpath(root, directory)
-                    if rel_path == '.':
-                        # If file is in the root directory, just use filename
-                        models.append(filename)
-                    else:
-                        # Otherwise combine subdirectory + filename
-                        models.append(os.path.join(rel_path, filename))
+                    models.append(filename)
         
         return models
 
-    def execute(self, directory, index, cycle):
-        models = self.list_models(directory)
+    def execute(self, directory, include_subdirectories, index, cycle):
+        models = self.list_models(directory, include_subdirectories)
         if not models:
             return ([], None, 0)  # No models found
 
