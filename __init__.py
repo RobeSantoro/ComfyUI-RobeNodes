@@ -33,9 +33,22 @@ class ListVideoPath:
         }
 
     RETURN_TYPES = ("LIST", "STRING", "INT")
-    RETURN_NAMES = ("videos_path", "selected_video_path", "count")
+    RETURN_NAMES = ("video_paths_list", "selected_video_path", "count")
     FUNCTION = "execute"
-    CATEGORY = "Robe"
+    CATEGORY = "RobeNodes"
+
+    def list_videos(self, directory):
+        videos = []
+        video_extensions = ['.mp4', '.avi', '.mov', '.mkv']
+
+        if not os.path.exists(directory):
+            return []
+        
+        for filename in os.listdir(directory):
+            if os.path.splitext(filename)[1].lower() in video_extensions:
+                videos.append(filename)
+        
+        return videos
 
     def execute(self, directory, index, cycle):
 
@@ -53,19 +66,6 @@ class ListVideoPath:
 
         # Return the list, full path of the current video, and count
         return (videos, selected_video, len(videos))
-
-    def list_videos(self, directory):
-        videos = []
-        video_extensions = ['.mp4', '.avi', '.mov', '.mkv']
-
-        if not os.path.exists(directory):
-            return []
-        
-        for filename in os.listdir(directory):
-            if os.path.splitext(filename)[1].lower() in video_extensions:
-                videos.append(filename)
-        
-        return videos
 
 
 class ListImagePath:
@@ -93,9 +93,9 @@ class ListImagePath:
         }
 
     RETURN_TYPES = ("LIST", "STRING", "INT", "INT", "INT", "IMAGE")
-    RETURN_NAMES = ("images_path", "selected_image_path", "count", "width", "height", "image")
+    RETURN_NAMES = ("image_paths_list", "selected_image_path", "count", "width", "height", "image")
     FUNCTION = "execute"
-    CATEGORY = "Robe"
+    CATEGORY = "RobeNodes"
 
     def execute(self, directory, index, cycle):
         images = self.list_images(directory)
@@ -143,8 +143,67 @@ class ListImagePath:
         return image_files
 
 
+class ListModelPath:
+    """
+    List all *.safetensors files in the specified directory
+    and output the selected model path, count and model tensor
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "directory": ("STRING", {
+                    "default": "E:\\MODELS\\checkpoints",
+                }),
+                "index": ("INT", {
+                    "default": 0,
+                    "min": 0,
+                }),
+                "cycle": (["enable", "disable"], {
+                    "default": "enable",
+                }),
+            },
+        }
+
+    RETURN_TYPES = ("LIST", "STRING", "INT")
+    RETURN_NAMES = ("model_paths_list", "selected_model_path", "count")
+    FUNCTION = "execute"
+    CATEGORY = "RobeNodes"
+
+    def list_models(self, directory):
+        models = []
+        model_extensions = ['.safetensors']
+
+        if not os.path.exists(directory):
+            return []
+        
+        for filename in os.listdir(directory):
+            if os.path.splitext(filename)[1].lower() in model_extensions:
+                models.append(filename)
+        
+        return models
+
+    def execute(self, directory, index, cycle):
+        models = self.list_models(directory)
+        if not models:
+            return ([], None, 0)  # No models found
+
+        # Cycle logic
+        if cycle == "enable":
+            index = index % len(models)  # Wrap around using modulo
+        else:
+            index = min(index, len(models) - 1)  # Limit to max index
+
+        selected_model = models[index]
+        
+        # Return the list, full path of the current model, and count
+        return (models, selected_model, len(models))
+
+
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
-    "List Image Path 🐤": ListImagePath
+    "List Image Path 🐤": ListImagePath,
+    "List Model Path 🐤": ListModelPath
 }
