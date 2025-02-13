@@ -178,9 +178,17 @@ class ListModelPath:
         if not os.path.exists(directory):
             return []
         
-        for filename in os.listdir(directory):
-            if os.path.splitext(filename)[1].lower() in model_extensions:
-                models.append(filename)
+        for root, _, files in os.walk(directory):
+            for filename in files:
+                if os.path.splitext(filename)[1].lower() in model_extensions:
+                    # Get the relative path from the base directory
+                    rel_path = os.path.relpath(root, directory)
+                    if rel_path == '.':
+                        # If file is in the root directory, just use filename
+                        models.append(filename)
+                    else:
+                        # Otherwise combine subdirectory + filename
+                        models.append(os.path.join(rel_path, filename))
         
         return models
 
