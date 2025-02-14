@@ -3,7 +3,7 @@ Custom nodes for the Comfy UI stable diffusion client.
 """
 
 import os
-import json
+import ast
 from PIL import Image, ImageOps
 import numpy as np
 import torch
@@ -36,6 +36,7 @@ class ListVideoPath:
     RETURN_NAMES = ("video_paths_list", "selected_video_path", "count")
     FUNCTION = "execute"
     CATEGORY = "RobeNodes"
+    DESCRIPTION = "List all video files in the specified directory and output the selected video path, count and video name/path."
 
     def list_videos(self, directory):
         videos = []
@@ -96,6 +97,7 @@ class ListImagePath:
     RETURN_NAMES = ("image_paths_list", "selected_image_path", "count", "width", "height", "image")
     FUNCTION = "execute"
     CATEGORY = "RobeNodes"
+    DESCRIPTION = "List all image files in the specified directory and output the selected image path, count, dimensions and image tensor."
 
     def execute(self, directory, index, cycle):
         images = self.list_images(directory)
@@ -173,6 +175,7 @@ class ListModelPath:
     RETURN_NAMES = ("model_paths_list", "selected_model_path", "count")
     FUNCTION = "execute"
     CATEGORY = "RobeNodes"
+    DESCRIPTION = "List all *.safetensors files in the specified directory and output the selected model path, count and model name/path. (To be used with CR String To Combo from Comfyroll Studio)"
 
     def list_models(self, directory, include_subdirectories):
         models = []
@@ -219,9 +222,45 @@ class ListModelPath:
         return (models, selected_model, len(models))
 
 
+class PeaksWeightsGenerator:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "peaks_binary_string": ("STRING", {
+                    "multiline": True,
+                    "default": "[0, 0, 0, 1, 0, 0, 1, 0]",
+                    "forceInput": False
+                })
+            }
+        }
+
+    RETURN_TYPES = ("FLOAT",)
+    RETURN_NAMES = ("peaks_weights",)
+    FUNCTION = "generate_peaks"
+    CATEGORY = "RobeNodes"
+    DESCRIPTION = "Generates a list of weights from a binary string."
+
+    def generate_peaks(self, peaks_binary_string):
+        try:
+            # Convert string representation of list to actual list
+            peaks_binary = ast.literal_eval(peaks_binary_string)
+            
+            # Ensure all values are either 0 or 1
+            if not all(x in (0, 1) for x in peaks_binary):
+                raise ValueError("All values must be either 0 or 1")
+                
+            return (peaks_binary,)
+            
+        except Exception as e:
+            print(f"Error converting peaks binary string: {e}")
+            # Return a default empty list in case of error
+            return ([],)
+
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
     "List Image Path 🐤": ListImagePath,
-    "List Model Path 🐤": ListModelPath
+    "List Model Path 🐤": ListModelPath,
+    "Peaks Weights Generator 🐤": PeaksWeightsGenerator
 }
