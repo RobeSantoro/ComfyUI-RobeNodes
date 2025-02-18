@@ -171,8 +171,8 @@ class ListModelPath:
                 "directory": ("STRING", {
                     "default": "E:\\MODELS\\checkpoints",
                 }),
-                "include_subdirectories": (["enable", "disable"], {
-                    "default": "disable",
+                "model_type": (["ALL", "FLUX1", "HUN1", "SD15", "SDXL"], {
+                    "default": "ALL",
                 }),
                 "index": ("INT", {
                     "default": 0,
@@ -190,36 +190,34 @@ class ListModelPath:
     CATEGORY = "RobeNodes"
     DESCRIPTION = "List all *.safetensors files in the specified directory and output the selected model path, count and model name/path"
 
-    def list_models(self, directory, include_subdirectories):
+    def list_models(self, directory, model_type="ALL"):
         models = []
         model_extensions = ['.safetensors']
 
         if not os.path.exists(directory):
             return []
         
-        if include_subdirectories == "enable":
-            # Recursive search through subdirectories
-            for root, _, files in os.walk(directory):
-                for filename in files:
-                    if os.path.splitext(filename)[1].lower() in model_extensions:
-                        # Get the relative path from the base directory
-                        rel_path = os.path.relpath(root, directory)
-                        if rel_path == '.':
-                            # If file is in the root directory, just use filename
-                            models.append(filename)
-                        else:
-                            # Otherwise combine subdirectory + filename
-                            models.append(os.path.join(rel_path, filename))
-        else:
-            # Only search in the root directory
-            for filename in os.listdir(directory):
+        # Recursive search through subdirectories
+        for root, _, files in os.walk(directory):
+            for filename in files:
                 if os.path.splitext(filename)[1].lower() in model_extensions:
-                    models.append(filename)
+                    # Get the relative path from the base directory
+                    rel_path = os.path.relpath(root, directory)
+                    if rel_path == '.':
+                        # If file is in the root directory, just use filename
+                        models.append(filename)
+                    else:
+                        # Otherwise combine subdirectory + filename
+                        models.append(os.path.join(rel_path, filename))
+
+        # Filter by model type if specified
+        if model_type != "ALL":
+            models = [m for m in models if m.startswith(model_type + "\\")]
         
         return models
 
-    def execute(self, directory, include_subdirectories, index, cycle):
-        models = self.list_models(directory, include_subdirectories)
+    def execute(self, directory, model_type, index, cycle):
+        models = self.list_models(directory, model_type)
         if not models:
             return ([], "", 0)  # No models found
 

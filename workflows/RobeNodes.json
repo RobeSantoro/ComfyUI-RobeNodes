@@ -1,6 +1,6 @@
 {
-  "last_node_id": 41,
-  "last_link_id": 38,
+  "last_node_id": 46,
+  "last_link_id": 45,
   "nodes": [
     {
       "id": 9,
@@ -14,7 +14,7 @@
         246
       ],
       "flags": {},
-      "order": 22,
+      "order": 23,
       "mode": 0,
       "inputs": [
         {
@@ -116,65 +116,6 @@
       }
     },
     {
-      "id": 1,
-      "type": "List Video Path 🐤",
-      "pos": [
-        -2440,
-        1560
-      ],
-      "size": [
-        315,
-        146
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "index",
-          "type": "INT",
-          "link": 10,
-          "widget": {
-            "name": "index"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "video_paths_list",
-          "type": "LIST",
-          "links": [
-            2
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "selected_video_path",
-          "type": "STRING",
-          "links": [
-            4
-          ],
-          "slot_index": 1
-        },
-        {
-          "name": "count",
-          "type": "INT",
-          "links": [
-            9
-          ],
-          "slot_index": 2
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "List Video Path 🐤"
-      },
-      "widgets_values": [
-        "W:\\ATTRAVERSO\\gammaPre\\masks_portrait_3.4",
-        37,
-        "enable"
-      ]
-    },
-    {
       "id": 13,
       "type": "PrimitiveNode",
       "pos": [
@@ -221,7 +162,7 @@
         76
       ],
       "flags": {},
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
@@ -255,7 +196,7 @@
         80
       ],
       "flags": {},
-      "order": 9,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
@@ -282,79 +223,8 @@
         "Node name for S&R": "Textbox"
       },
       "widgets_values": [
-        "W:\\ATTRAVERSO\\gammaPre\\masks_portrait_3.4\\25.mp4",
+        "W:\\ATTRAVERSO\\gammaPre\\masks_portrait_3.4\\13.mp4",
         ""
-      ]
-    },
-    {
-      "id": 6,
-      "type": "DisplayAny",
-      "pos": [
-        -2070,
-        1290
-      ],
-      "size": [
-        220,
-        180
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "input",
-          "type": "*",
-          "link": 2
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "DisplayAny"
-      },
-      "widgets_values": [
-        "raw value"
-      ]
-    },
-    {
-      "id": 18,
-      "type": "DisplayAny",
-      "pos": [
-        -2030,
-        540
-      ],
-      "size": [
-        290,
-        110
-      ],
-      "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "input",
-          "type": "*",
-          "link": 15
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "DisplayAny"
-      },
-      "widgets_values": [
-        "raw value"
       ]
     },
     {
@@ -369,7 +239,7 @@
         260
       ],
       "flags": {},
-      "order": 16,
+      "order": 19,
       "mode": 0,
       "inputs": [
         {
@@ -385,15 +255,197 @@
       "widgets_values": []
     },
     {
-      "id": 17,
-      "type": "PrimitiveNode",
+      "id": 19,
+      "type": "Textbox",
       "pos": [
-        -2820,
-        690
+        -2040,
+        700
       ],
       "size": [
-        260,
-        82
+        300,
+        80
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "passthrough",
+          "type": "STRING",
+          "link": 16,
+          "widget": {
+            "name": "passthrough"
+          },
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Textbox"
+      },
+      "widgets_values": [
+        "W:\\ATTRAVERSO\\OPERE\\scrape\\images_renamed\\Selection\\image_0251, Dipinto, Scogliera di Polignano, Olio su cartone, Damaso Bianchi.jpg",
+        ""
+      ]
+    },
+    {
+      "id": 20,
+      "type": "Display Int (rgthree)",
+      "pos": [
+        -2030,
+        860
+      ],
+      "size": [
+        300,
+        76
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input",
+          "type": "INT",
+          "link": 17,
+          "widget": {
+            "name": "input"
+          },
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Display Int (rgthree)"
+      },
+      "widgets_values": [
+        0,
+        ""
+      ]
+    },
+    {
+      "id": 22,
+      "type": "Display Int (rgthree)",
+      "pos": [
+        -1910,
+        990
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input",
+          "type": "INT",
+          "link": 19,
+          "widget": {
+            "name": "input"
+          },
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Display Int (rgthree)"
+      },
+      "widgets_values": [
+        0,
+        ""
+      ]
+    },
+    {
+      "id": 21,
+      "type": "Display Int (rgthree)",
+      "pos": [
+        -2140,
+        990
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input",
+          "type": "INT",
+          "link": 18,
+          "widget": {
+            "name": "input"
+          },
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "title": "width",
+      "properties": {
+        "Node name for S&R": "Display Int (rgthree)"
+      },
+      "widgets_values": [
+        0,
+        ""
+      ]
+    },
+    {
+      "id": 24,
+      "type": "CLIPTextEncode",
+      "pos": [
+        -580,
+        2220
+      ],
+      "size": [
+        425.27801513671875,
+        180.6060791015625
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            25
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "text, watermark"
+      ]
+    },
+    {
+      "id": 26,
+      "type": "EmptyLatentImage",
+      "pos": [
+        -520,
+        2440
+      ],
+      "size": [
+        315,
+        106
       ],
       "flags": {},
       "order": 1,
@@ -401,10 +453,458 @@
       "inputs": [],
       "outputs": [
         {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            26
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        512,
+        512,
+        1
+      ]
+    },
+    {
+      "id": 27,
+      "type": "KSampler",
+      "pos": [
+        -130,
+        2020
+      ],
+      "size": [
+        315,
+        262
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 23
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 24
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 25
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 26
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            27
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        331784617225933,
+        "randomize",
+        20,
+        8,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 28,
+      "type": "VAEDecode",
+      "pos": [
+        220,
+        2020
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 27
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 28
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            29
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 29,
+      "type": "SaveImage",
+      "pos": [
+        460,
+        2020
+      ],
+      "size": [
+        210,
+        270
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 29
+        },
+        {
+          "name": "filename_prefix",
+          "type": "STRING",
+          "link": 45,
+          "widget": {
+            "name": "filename_prefix"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 30,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        -1040,
+        2300
+      ],
+      "size": [
+        330,
+        98
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "ckpt_name",
+          "type": "COMBO",
+          "link": 42,
+          "widget": {
+            "name": "ckpt_name"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            23
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            21,
+            22
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            28
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "SD15\\LCM\\photonLCM_v10.safetensors"
+      ]
+    },
+    {
+      "id": 25,
+      "type": "CLIPTextEncode",
+      "pos": [
+        -570,
+        2020
+      ],
+      "size": [
+        422.84503173828125,
+        164.31304931640625
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 22
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            24
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,"
+      ]
+    },
+    {
+      "id": 1,
+      "type": "List Video Path 🐤",
+      "pos": [
+        -2440,
+        1560
+      ],
+      "size": [
+        315,
+        146
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "index",
+          "type": "INT",
+          "link": 10,
+          "widget": {
+            "name": "index"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video_paths_list",
+          "type": "LIST",
+          "links": [
+            40
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "selected_video_path",
+          "type": "STRING",
+          "links": [
+            4
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": [
+            9
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "List Video Path 🐤"
+      },
+      "widgets_values": [
+        "W:\\ATTRAVERSO\\gammaPre\\masks_portrait_3.4",
+        37,
+        "enable"
+      ]
+    },
+    {
+      "id": 43,
+      "type": "Display Any (rgthree)",
+      "pos": [
+        -2070,
+        1330
+      ],
+      "size": [
+        264.5999755859375,
+        76
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 40,
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Display Any (rgthree)"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 44,
+      "type": "Display Any (rgthree)",
+      "pos": [
+        -2040,
+        550
+      ],
+      "size": [
+        264.5999755859375,
+        76
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 41,
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Display Any (rgthree)"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 42,
+      "type": "Display Any (rgthree)",
+      "pos": [
+        -1470,
+        2130
+      ],
+      "size": [
+        310,
+        80
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 39,
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Display Any (rgthree)"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 14,
+      "type": "Display Int (rgthree)",
+      "pos": [
+        -1470,
+        2480
+      ],
+      "size": [
+        290,
+        76
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "input",
+          "type": "INT",
+          "link": 11,
+          "widget": {
+            "name": "input"
+          },
+          "dir": 3
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Display Int (rgthree)"
+      },
+      "widgets_values": [
+        0,
+        ""
+      ]
+    },
+    {
+      "id": 23,
+      "type": "PrimitiveNode",
+      "pos": [
+        -2340,
+        2280
+      ],
+      "size": [
+        290,
+        82
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
           "name": "INT",
           "type": "INT",
           "links": [
-            14
+            20
           ],
           "widget": {
             "name": "index"
@@ -415,8 +915,8 @@
         "Run widget replace on values": false
       },
       "widgets_values": [
-        1696,
-        "fixed"
+        5,
+        "increment"
       ]
     },
     {
@@ -424,7 +924,7 @@
       "type": "List Image Path 🐤",
       "pos": [
         -2500,
-        690
+        680
       ],
       "size": [
         315,
@@ -448,7 +948,7 @@
           "name": "image_paths_list",
           "type": "LIST",
           "links": [
-            15
+            41
           ],
           "slot_index": 0
         },
@@ -503,493 +1003,15 @@
       ]
     },
     {
-      "id": 19,
-      "type": "Textbox",
+      "id": 17,
+      "type": "PrimitiveNode",
       "pos": [
-        -2040,
-        700
+        -2820,
+        680
       ],
       "size": [
-        300,
-        80
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "passthrough",
-          "type": "STRING",
-          "link": 16,
-          "widget": {
-            "name": "passthrough"
-          },
-          "shape": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "links": [],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "Textbox"
-      },
-      "widgets_values": [
-        "W:\\ATTRAVERSO\\OPERE\\scrape\\images_renamed\\Selection\\0509.jpg",
-        ""
-      ]
-    },
-    {
-      "id": 20,
-      "type": "Display Int (rgthree)",
-      "pos": [
-        -2030,
-        860
-      ],
-      "size": [
-        300,
-        76
-      ],
-      "flags": {},
-      "order": 13,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "input",
-          "type": "INT",
-          "link": 17,
-          "widget": {
-            "name": "input"
-          },
-          "dir": 3
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "Display Int (rgthree)"
-      },
-      "widgets_values": [
-        0,
-        ""
-      ]
-    },
-    {
-      "id": 22,
-      "type": "Display Int (rgthree)",
-      "pos": [
-        -1910,
-        990
-      ],
-      "size": [
-        210,
-        76
-      ],
-      "flags": {},
-      "order": 15,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "input",
-          "type": "INT",
-          "link": 19,
-          "widget": {
-            "name": "input"
-          },
-          "dir": 3
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "Display Int (rgthree)"
-      },
-      "widgets_values": [
-        0,
-        ""
-      ]
-    },
-    {
-      "id": 21,
-      "type": "Display Int (rgthree)",
-      "pos": [
-        -2140,
-        990
-      ],
-      "size": [
-        210,
-        76
-      ],
-      "flags": {},
-      "order": 14,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "input",
-          "type": "INT",
-          "link": 18,
-          "widget": {
-            "name": "input"
-          },
-          "dir": 3
-        }
-      ],
-      "outputs": [],
-      "title": "width",
-      "properties": {
-        "Node name for S&R": "Display Int (rgthree)"
-      },
-      "widgets_values": [
-        0,
-        ""
-      ]
-    },
-    {
-      "id": 24,
-      "type": "CLIPTextEncode",
-      "pos": [
-        -580,
-        2220
-      ],
-      "size": [
-        425.27801513671875,
-        180.6060791015625
-      ],
-      "flags": {},
-      "order": 24,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 21
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            25
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "text, watermark"
-      ]
-    },
-    {
-      "id": 26,
-      "type": "EmptyLatentImage",
-      "pos": [
-        -520,
-        2440
-      ],
-      "size": [
-        315,
-        106
-      ],
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            26
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "EmptyLatentImage"
-      },
-      "widgets_values": [
-        512,
-        512,
-        1
-      ]
-    },
-    {
-      "id": 27,
-      "type": "KSampler",
-      "pos": [
-        -130,
-        2020
-      ],
-      "size": [
-        315,
-        262
-      ],
-      "flags": {},
-      "order": 26,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 23
-        },
-        {
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 24
-        },
-        {
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 25
-        },
-        {
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 26
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            27
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "KSampler"
-      },
-      "widgets_values": [
-        8757021299647,
-        "randomize",
-        20,
-        8,
-        "euler",
-        "normal",
-        1
-      ]
-    },
-    {
-      "id": 28,
-      "type": "VAEDecode",
-      "pos": [
-        220,
-        2020
-      ],
-      "size": [
-        210,
-        46
-      ],
-      "flags": {},
-      "order": 27,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 27
-        },
-        {
-          "name": "vae",
-          "type": "VAE",
-          "link": 28
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            29
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VAEDecode"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 29,
-      "type": "SaveImage",
-      "pos": [
-        460,
-        2020
-      ],
-      "size": [
-        210,
-        270
-      ],
-      "flags": {},
-      "order": 28,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 29
-        }
-      ],
-      "outputs": [],
-      "properties": {},
-      "widgets_values": [
-        "ComfyUI"
-      ]
-    },
-    {
-      "id": 14,
-      "type": "Display Int (rgthree)",
-      "pos": [
-        -1810,
-        2500
-      ],
-      "size": [
-        220,
-        76
-      ],
-      "flags": {},
-      "order": 19,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "input",
-          "type": "INT",
-          "link": 11,
-          "widget": {
-            "name": "input"
-          },
-          "dir": 3
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "Display Int (rgthree)"
-      },
-      "widgets_values": [
-        0,
-        ""
-      ]
-    },
-    {
-      "id": 30,
-      "type": "CheckpointLoaderSimple",
-      "pos": [
-        -1040,
-        2300
-      ],
-      "size": [
-        330,
-        98
-      ],
-      "flags": {},
-      "order": 23,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "ckpt_name",
-          "type": "COMBO",
-          "link": 35,
-          "widget": {
-            "name": "ckpt_name"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            23
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            21,
-            22
-          ],
-          "slot_index": 1
-        },
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": [
-            28
-          ],
-          "slot_index": 2
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CheckpointLoaderSimple"
-      },
-      "widgets_values": [
-        "SD15\\LCM\\photonLCM_v10.safetensors"
-      ]
-    },
-    {
-      "id": 38,
-      "type": "Textbox",
-      "pos": [
-        -2000,
-        2300
-      ],
-      "size": [
-        450,
-        76
-      ],
-      "flags": {},
-      "order": 18,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "passthrough",
-          "type": "STRING",
-          "link": 37,
-          "widget": {
-            "name": "passthrough"
-          },
-          "shape": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "links": [
-            38
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "Textbox"
-      },
-      "widgets_values": [
-        "ponyRealism_v21MainVAE.safetensors",
-        ""
-      ]
-    },
-    {
-      "id": 40,
-      "type": "CheckpointLoaderSimple",
-      "pos": [
-        -1030,
-        2440
-      ],
-      "size": [
-        315,
-        98
+        260,
+        82
       ],
       "flags": {},
       "order": 3,
@@ -997,49 +1019,10 @@
       "inputs": [],
       "outputs": [
         {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": null
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": null
-        },
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CheckpointLoaderSimple"
-      },
-      "widgets_values": [
-        "AUDIO\\stable-audio-open-1.0.safetensors"
-      ]
-    },
-    {
-      "id": 23,
-      "type": "PrimitiveNode",
-      "pos": [
-        -2860,
-        2230
-      ],
-      "size": [
-        290,
-        82
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
           "name": "INT",
           "type": "INT",
           "links": [
-            20
+            14
           ],
           "widget": {
             "name": "index"
@@ -1050,23 +1033,23 @@
         "Run widget replace on values": false
       },
       "widgets_values": [
-        5,
-        "increment"
+        1696,
+        "fixed"
       ]
     },
     {
       "id": 2,
       "type": "List Model Path 🐤",
       "pos": [
-        -2490,
-        2230
+        -1910,
+        2280
       ],
       "size": [
         315,
         146
       ],
       "flags": {},
-      "order": 7,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {
@@ -1083,15 +1066,16 @@
           "name": "model_paths_list",
           "type": "LIST",
           "links": [
-            7
+            39
           ],
           "slot_index": 0
         },
         {
           "name": "selected_model_path",
-          "type": "STRING",
+          "type": "*",
           "links": [
-            37
+            42,
+            44
           ],
           "slot_index": 1
         },
@@ -1109,143 +1093,56 @@
       },
       "widgets_values": [
         "E:\\MODELS\\checkpoints",
-        "enable",
+        "SD15",
         5,
-        "disable"
+        "enable"
       ]
     },
     {
-      "id": 10,
-      "type": "DisplayAny",
+      "id": 46,
+      "type": "Textbox",
       "pos": [
-        -1790,
-        2070
+        -1040,
+        2460
       ],
       "size": [
-        520,
-        120
+        330,
+        130
       ],
       "flags": {},
-      "order": 17,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
-          "name": "input",
-          "type": "*",
-          "link": 7
+          "name": "passthrough",
+          "type": "STRING",
+          "link": 44,
+          "widget": {
+            "name": "passthrough"
+          },
+          "shape": 7
         }
       ],
       "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "DisplayAny"
-      },
-      "widgets_values": [
-        "raw value",
-        "['ltx-video-2b-v0.9.safetensors', 'ponyRealism_v21MainVAE.safetensors', 'sd_turbo.safetensors', 'v1-5-pruned-emaonly.safetensors', 'x4-upscaler-ema.safetensors', 'AUDIO\\\\stable-audio-open-1.0.safetensors', 'FLUX1\\\\flux1-dev-fp8.safetensors', 'FLUX1\\\\flux1-schnell-fp8.safetensors', 'SD15\\\\28DSTABLEBESTVERSION_v6.safetensors', 'SD15\\\\againcyberpunk_v10.safetensors', 'SD15\\\\awportrait_v10.safetensors', 'SD15\\\\bambiEyes_v10.safetensors', 'SD15\\\\deliberate_v2.safetensors', 'SD15\\\\dreamlike-diffusion-1.0.safetensors', 'SD15\\\\dreamshaper_8.safetensors', 'SD15\\\\dreamshaper_8Inpainting.safetensors', 'SD15\\\\drrjdj_stableV14.safetensors', 'SD15\\\\epicrealism_naturalSinRC1VAE.safetensors', 'SD15\\\\pirsusComicsStyle_pirsusComicsStyle.safetensors', 'SD15\\\\reliberate_v10.safetensors', 'SD15\\\\revAnimated_v122.safetensors', 'SD15\\\\revAnimated_v2Rebirth.safetensors', 'SD15\\\\salle_sdv15_135K_steps_v1.safetensors', 'SD15\\\\sxzLumaFp16Cleaned_09X.safetensors', 'SD15\\\\sxzLumaFp16Cleaned_09XInpaint.safetensors', 'SD15\\\\sxzLuma_09XVAE.safetensors', 'SD15\\\\uberRealisticPornMerge_urpmv13.safetensors', 'SD15\\\\v1-5-pruned.safetensors', 'SD15\\\\3D\\\\3dAnimationDiffusion_lcm.safetensors', 'SD15\\\\3D\\\\3dAnimationDiffusion_v10.safetensors', 'SD15\\\\ANIME\\\\ghostmix_v20Bakedvae.safetensors', 'SD15\\\\ANIME\\\\helloyoung25d_V10f.safetensors', 'SD15\\\\ANIME\\\\lofiEVERYTHINGEasilyCreate_lofiEVERYTHINGV1.safetensors', 'SD15\\\\ANIME\\\\toonyou_beta6.safetensors', 'SD15\\\\ART\\\\aZovyaRPGArtistTools_v4.safetensors', 'SD15\\\\ART\\\\dreamshaper_631BakedVae.safetensors', 'SD15\\\\ART\\\\etherBluMix_etherBluMix7.safetensors', 'SD15\\\\ART\\\\haveallX_.safetensors', 'SD15\\\\ART\\\\haveallX_haveallXV2.safetensors', 'SD15\\\\ART\\\\HuixincosmicAllInOne_sd15V10.safetensors', 'SD15\\\\ART\\\\impastomix_v20.safetensors', 'SD15\\\\ART\\\\impressionismOil_sd15.safetensors', 'SD15\\\\ART\\\\lustermix_v20Semirealism.safetensors', 'SD15\\\\ART\\\\nostalyakimix_WaterV10.safetensors', 'SD15\\\\ART\\\\oilPainting_v10.safetensors', 'SD15\\\\ART\\\\pirsusArtstation_v10.safetensors', 'SD15\\\\ART\\\\STOIQONewrealityFLUXSD_SD10.safetensors', 'SD15\\\\CINE\\\\cineDiffusion_v3.safetensors', 'SD15\\\\GRAPHIC\\\\lyriel_v16.safetensors', 'SD15\\\\GRAPHIC\\\\zyd232_InkStyle_v1_0.safetensors', 'SD15\\\\LCM\\\\delusionsLCM_v20.safetensors', 'SD15\\\\LCM\\\\dreamshaper_8LCM.safetensors', 'SD15\\\\LCM\\\\frtMixmodelLCM_realisticV10.safetensors', 'SD15\\\\LCM\\\\frtMixmodelLCM_unrealisticV10.safetensors', 'SD15\\\\LCM\\\\LCM_Dreamshaper_v7_4k.safetensors', 'SD15\\\\LCM\\\\photonLCM_v10.safetensors', 'SD15\\\\PHOTO\\\\cyberrealistic_v42-inpainting.safetensors', 'SD15\\\\PHOTO\\\\leosamsFilmgirlUltra_ultraBaseModel.safetensors', 'SD15\\\\PHOTO\\\\picxReal_10.safetensors', 'SD15\\\\PHOTO\\\\picxReal_10Inpaint.safetensors', 'SD15\\\\PHOTO\\\\picxReal_10Lcm.safetensors', 'SD15\\\\PHOTO\\\\realisticVisionV51_v51VAE.safetensors', 'SD15\\\\VECTOR\\\\flonixsVectorStyle_redditModelBadges.safetensors', 'SD21\\\\v2-1_768-ema-pruned.safetensors', 'SD21\\\\v2-1_768-nonema-pruned.safetensors', 'SDXL\\\\aetherverseLightning_v10.safetensors', 'SDXL\\\\aiREALLightning_v20Gimmie6Steps.safetensors', 'SDXL\\\\dreamshaperXL_lightningDPMSDE.safetensors', 'SDXL\\\\dreamshaperXL_v21TurboDPMSDE.safetensors', 'SDXL\\\\fenris-xl.safetensors', 'SDXL\\\\fullyREALXL_v90Vividreal.safetensors', 'SDXL\\\\hsxl_base_1.0.safetensors', 'SDXL\\\\Hyper-SDXL-1step-Unet-Comfyui.fp16.safetensors', 'SDXL\\\\juggernautXL_v9Rdphoto2Lightning.safetensors', 'SDXL\\\\juggernautXL_v9Rundiffusionphoto2.safetensors', 'SDXL\\\\juggernautXL_version6Rundiffusion.safetensors', 'SDXL\\\\Juggernaut_X_RunDiffusion_Hyper.safetensors', 'SDXL\\\\leosamsHelloworldXL_helloworldXL50GPT4V.safetensors', 'SDXL\\\\magieNoire_v40.safetensors', 'SDXL\\\\proteusRundiffusion_withclip.safetensors', 'SDXL\\\\realisticStockPhoto_v10.safetensors', 'SDXL\\\\realvisxlV40_v40LightningBakedvae.safetensors', 'SDXL\\\\SDXLFaetastic_v24.safetensors', 'SDXL\\\\sd_xl_base_1.0.safetensors', 'SDXL\\\\sd_xl_base_1.0_0.9vae.safetensors', 'SDXL\\\\sd_xl_refiner_1.0.safetensors', 'SDXL\\\\sd_xl_refiner_1.0_0.9vae.safetensors', 'SDXL\\\\sd_xl_turbo_1.0_fp16.safetensors', 'SDXL\\\\SSD-1B.safetensors', 'SDXL\\\\starlightXLAnimated_v3.safetensors', 'SDXL\\\\turbovisionxlSuperFastXLBasedOnNew_tvxlV431Bakedvae.safetensors', 'SDXL\\\\LIGHTNING\\\\forrealxlV10_v01.safetensors', 'STABLECASCADE\\\\stable_cascade_stage_b.safetensors', 'STABLECASCADE\\\\stable_cascade_stage_c.safetensors', 'svd\\\\svd.safetensors', 'svd\\\\svd_xt.safetensors', 'svd\\\\svd_xt_1_1.safetensors']"
-      ]
-    },
-    {
-      "id": 37,
-      "type": "CR String To Combo",
-      "pos": [
-        -1440,
-        2300
-      ],
-      "size": [
-        210,
-        54
-      ],
-      "flags": {},
-      "order": 21,
-      "mode": 0,
-      "inputs": [
         {
           "name": "text",
           "type": "STRING",
-          "link": 38,
-          "widget": {
-            "name": "text"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "any",
-          "type": "*",
           "links": [
-            35
+            45
           ],
           "slot_index": 0
-        },
-        {
-          "name": "show_help",
-          "type": "STRING",
-          "links": null,
-          "slot_index": 1
         }
       ],
       "properties": {
-        "Node name for S&R": "CR String To Combo"
+        "Node name for S&R": "Textbox"
       },
       "widgets_values": [
+        "SD15\\awportrait_v10.safetensors",
         ""
-      ]
-    },
-    {
-      "id": 25,
-      "type": "CLIPTextEncode",
-      "pos": [
-        -570,
-        2020
-      ],
-      "size": [
-        422.84503173828125,
-        164.31304931640625
-      ],
-      "flags": {},
-      "order": 25,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 22
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
-          "links": [
-            24
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CLIPTextEncode"
-      },
-      "widgets_values": [
-        "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,"
       ]
     }
   ],
   "links": [
-    [
-      2,
-      1,
-      0,
-      6,
-      0,
-      "*"
-    ],
     [
       4,
       1,
@@ -1269,14 +1166,6 @@
       9,
       0,
       "IMAGE"
-    ],
-    [
-      7,
-      2,
-      0,
-      10,
-      0,
-      "*"
     ],
     [
       9,
@@ -1317,14 +1206,6 @@
       3,
       0,
       "INT"
-    ],
-    [
-      15,
-      3,
-      0,
-      18,
-      0,
-      "*"
     ],
     [
       16,
@@ -1439,27 +1320,51 @@
       "IMAGE"
     ],
     [
-      35,
-      37,
+      39,
+      2,
       0,
+      42,
+      0,
+      "*"
+    ],
+    [
+      40,
+      1,
+      0,
+      43,
+      0,
+      "*"
+    ],
+    [
+      41,
+      3,
+      0,
+      44,
+      0,
+      "*"
+    ],
+    [
+      42,
+      2,
+      1,
       30,
       0,
       "COMBO"
     ],
     [
-      37,
+      44,
       2,
       1,
-      38,
+      46,
       0,
       "STRING"
     ],
     [
-      38,
-      38,
+      45,
+      46,
       0,
-      37,
-      0,
+      29,
+      1,
       "STRING"
     ]
   ],
@@ -1520,20 +1425,18 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.573085533011682,
+      "scale": 0.6588450000000043,
       "offset": [
-        1551.7149749713953,
-        -1482.104098487358
+        2543.470041402296,
+        -1724.7104949987552
       ]
     },
     "node_versions": {
       "comfy-core": "0.3.12",
       "ComfyUI-VideoHelperSuite": "f24f4e10f448913eb8c0d8ce5ff6190a8be84454",
-      "ComfyUI-RobeNodes": "a761d55974d470497460ab56e649dc5e0e0c8783",
       "rgthree-comfy": "5d771b8b56a343c24a26e8cea1f0c87c3d58102f",
       "ComfyUI-Chibi-Nodes": "b1dd86ee729d11e6be2874cf9eb189661fbc8070",
-      "ComfyUI_essentials": "33ff89fd354d8ec3ab6affb605a79a931b445d99",
-      "ComfyUI_Comfyroll_CustomNodes": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca"
+      "ComfyUI-RobeNodes": "bc1eeac6ac328eb10c7c41382af3703f5b58dcf0"
     },
     "ue_links": [],
     "VHS_latentpreview": false,
