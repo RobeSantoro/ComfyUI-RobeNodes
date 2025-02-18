@@ -3,10 +3,23 @@ Custom nodes for the Comfy UI stable diffusion client.
 """
 
 import os
+import glob
+import random
+
 import ast
 from PIL import Image, ImageOps
 import numpy as np
 import torch
+
+
+class AnyType(str):
+    """A special type that can be connected to any other types. Credit to pythongosssss"""
+
+    def __ne__(self, __value: object) -> bool:
+        return False
+
+
+any_type = AnyType("*")
 
 
 class ListVideoPath:
@@ -171,11 +184,11 @@ class ListModelPath:
             },
         }
 
-    RETURN_TYPES = ("LIST", "STRING", "INT")
+    RETURN_TYPES = ("LIST", any_type, "INT")  
     RETURN_NAMES = ("model_paths_list", "selected_model_path", "count")
     FUNCTION = "execute"
     CATEGORY = "RobeNodes"
-    DESCRIPTION = "List all *.safetensors files in the specified directory and output the selected model path, count and model name/path. (To be used with CR String To Combo from Comfyroll Studio)"
+    DESCRIPTION = "List all *.safetensors files in the specified directory and output the selected model path, count and model name/path"
 
     def list_models(self, directory, include_subdirectories):
         models = []
@@ -208,7 +221,7 @@ class ListModelPath:
     def execute(self, directory, include_subdirectories, index, cycle):
         models = self.list_models(directory, include_subdirectories)
         if not models:
-            return ([], None, 0)  # No models found
+            return ([], "", 0)  # No models found
 
         # Cycle logic
         if cycle == "enable":
@@ -218,7 +231,7 @@ class ListModelPath:
 
         selected_model = models[index]
         
-        # Return the list, full path of the current model, and count
+        # Return the list, selected model as a string (will be converted to COMBO by any_type), and count
         return (models, selected_model, len(models))
 
 
@@ -257,10 +270,11 @@ class PeaksWeightsGenerator:
             # Return a default empty list in case of error
             return ([],)
 
+
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
     "List Image Path 🐤": ListImagePath,
     "List Model Path 🐤": ListModelPath,
-    "Peaks Weights Generator 🐤": PeaksWeightsGenerator
+    "Peaks Weights Generator 🐤": PeaksWeightsGenerator,
 }
