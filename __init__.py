@@ -234,6 +234,11 @@ class ListModelPath:
 
 
 class PeaksWeightsGenerator:
+    """
+    Generates a list of weights from a binary string to be used with the
+    "Generate Peaks Weights" node from Yvann Nodes
+    """
+
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -269,10 +274,70 @@ class PeaksWeightsGenerator:
             return ([],)
 
 
+class Image_Input_Switch:
+    """
+    Switch between two images based on a boolean input. From WAS Suite/Logic
+    """
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image_a": ("IMAGE",),
+                "image_b": ("IMAGE",),
+                "boolean": ("BOOLEAN", {"forceInput": True}),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "image_input_switch"
+
+    CATEGORY = "RobeNodes"
+    DESCRIPTION = "Switch between two images based on a boolean input."
+
+    def image_input_switch(self, image_a, image_b, boolean=True):
+
+        if boolean:
+            return (image_a, )
+        else:
+            return (image_b, )
+
+
+class BooleanPrimitive:
+    """
+    Primitive node to convert a boolean value to a string and vice versa. From Art Venture/Utils
+    """
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "value": ("BOOLEAN", {"default": False}),
+                "reverse": ("BOOLEAN", {"default": False}),
+            }
+        }
+
+    RETURN_TYPES = ("BOOLEAN", "STRING")
+    CATEGORY = "RobeNodes"
+    FUNCTION = "boolean_primitive"
+
+    def boolean_primitive(self, value: bool, reverse: bool):
+        if reverse:
+            value = not value
+
+        return (value, str(value))
+
+
+
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
     "List Image Path 🐤": ListImagePath,
     "List Model Path 🐤": ListModelPath,
     "Peaks Weights Generator 🐤": PeaksWeightsGenerator,
+    "Image Input Switch 🐤": Image_Input_Switch,
+    "Boolean Primitive 🐤": BooleanPrimitive,
 }
