@@ -184,7 +184,7 @@ class ListModelPath:
             },
         }
 
-    RETURN_TYPES = ("LIST", any_type, "INT")  
+    RETURN_TYPES = ("STRING", any_type, "INT")  
     RETURN_NAMES = ("model_paths_list", "selected_model_path", "count")
     FUNCTION = "execute"
     CATEGORY = "RobeNodes"
@@ -228,9 +228,12 @@ class ListModelPath:
             index = min(index, len(models) - 1)  # Limit to max index
 
         selected_model = models[index]
+
+        # The list of models as a string with their indices on a new line
+        model_paths_list = "\n".join([f"[{i}] - {model}" for i, model in enumerate(models)])
         
         # Return the list, selected model as a string (will be converted to COMBO by any_type), and count
-        return (models, selected_model, len(models))
+        return (model_paths_list, selected_model, len(models))
 
 
 class PeaksWeightsGenerator:
