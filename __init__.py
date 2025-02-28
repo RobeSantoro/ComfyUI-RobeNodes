@@ -192,7 +192,7 @@ class ListModelPath:
 
     def list_models(self, directory, model_type="ALL"):
         models = []
-        model_extensions = ['.safetensors']
+        model_extensions = ['.safetensors', '.ckpt']
 
         if not os.path.exists(directory):
             return []
