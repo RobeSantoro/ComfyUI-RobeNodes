@@ -246,9 +246,18 @@ class PeaksWeightsGenerator:
     def INPUT_TYPES(cls):
         return {
             "required": {
+                "frames_count": ("INT", {
+                    "default": 0,
+                    "min": 0,
+                }),
+                "one_indexes": ("STRING", {
+                    "default": "0, 4, 8, 12", # for a 16 frames sequence
+                    "forceInput": False
+                }),
+                "specify_peaks_manually": ("BOOLEAN", {"default": False}),
                 "peaks_binary_string": ("STRING", {
                     "multiline": True,
-                    "default": "[0, 0, 0, 1, 0, 0, 1, 0]",
+                    "default": "[1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]", # for a 16 frames sequence
                     "forceInput": False
                 })
             }
@@ -260,21 +269,34 @@ class PeaksWeightsGenerator:
     CATEGORY = "RobeNodes"
     DESCRIPTION = "Generates a list of weights from a binary string."
 
-    def generate_peaks(self, peaks_binary_string):
-        try:
-            # Convert string representation of list to actual list
-            peaks_binary = ast.literal_eval(peaks_binary_string)
-            
-            # Ensure all values are either 0 or 1
-            if not all(x in (0, 1) for x in peaks_binary):
-                raise ValueError("All values must be either 0 or 1")
+    def generate_peaks(self, peaks_binary_string, specify_peaks_manually, frames_count, one_indexes):
+        if specify_peaks_manually:
+            try:
+                # Convert string representation of list to actual list
+                peaks_binary = ast.literal_eval(peaks_binary_string)
                 
-            return (peaks_binary,)
-            
-        except Exception as e:
-            print(f"Error converting peaks binary string: {e}")
-            # Return a default empty list in case of error
-            return ([],)
+                # Ensure all values are either 0 or 1
+                if not all(x in (0, 1) for x in peaks_binary):
+                    raise ValueError("All values must be either 0 or 1")
+                    
+                return (peaks_binary,)
+                
+            except Exception as e:
+                print(f"Error converting peaks binary string: {e}")
+                # Return a default empty list in case of error
+                return ([],)
+        else:
+            # Generate the peaks weights from the frames count and one_indexes string list
+            peaks_weights = [0] * frames_count
+            try:
+                for index in one_indexes.split(","):
+                    index = int(index.strip())
+                    if 0 <= index < frames_count:
+                        peaks_weights[index] = 1
+                return (peaks_weights,)
+            except Exception as e:
+                print(f"Error generating peaks weights: {e}")
+                return ([],)
 
 
 class Image_Input_Switch:
