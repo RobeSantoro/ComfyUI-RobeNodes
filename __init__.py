@@ -236,6 +236,49 @@ class ListModelPath:
         return (model_paths_list, selected_model, len(models))
 
 
+class IndicesGenerator:
+    """
+    Divides the frames count by the number of images and
+    returns a comma separated string of equally spaced indices.
+    For example, if frames_count is 250 and images_count is 4, it returns 4 indices: "0, 62, 124, 186".
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "frames_count": ("INT", {
+                    "default": 0,
+                    "min": 0,
+                }),
+                "images_count": ("INT", {
+                    "default": 0,
+                    "min": 0,
+                }),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("indices",)
+    FUNCTION = "execute"
+    CATEGORY = "RobeNodes"
+    DESCRIPTION = "Returns a comma separated string of equally spaced indices from the total number of frames and the number of images."
+
+    def execute(self, frames_count, images_count):
+        # Generate a number of indices equals to the image_count
+        # and round them to the nearest integer
+        indices = [i for i in range(0, frames_count, round(frames_count / (images_count)))]
+
+        # If there are more indices than images_count, remove the latest ones
+        if len(indices) > images_count:
+            indices = indices[:images_count]
+        
+        # Convert indices to comma separated string
+        indices_str = ", ".join(map(str, indices))
+        
+        return (indices_str,)
+
+
 class PeaksWeightsGenerator:
     """
     Generates a list of weights from a binary string to be used with the
@@ -362,6 +405,7 @@ NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
     "List Image Path 🐤": ListImagePath,
     "List Model Path 🐤": ListModelPath,
+    "Indices Generator 🐤": IndicesGenerator,
     "Peaks Weights Generator 🐤": PeaksWeightsGenerator,
     "Image Input Switch 🐤": Image_Input_Switch,
     "Boolean Primitive 🐤": BooleanPrimitive,
