@@ -160,7 +160,7 @@ class ListImagePath:
 
 class ListModelPath:
     """
-    List all *.safetensors files in the specified directory
+    List all *.safetensors, *.ckpt, *.pt and *.pth files in the specified directory
     and output the selected model path, count and model tensor
     """
 
@@ -192,7 +192,7 @@ class ListModelPath:
 
     def list_models(self, directory, model_type="ALL"):
         models = []
-        model_extensions = ['.safetensors', '.ckpt']
+        model_extensions = ['.safetensors', '.ckpt', '.pth', '.pt']
 
         if not os.path.exists(directory):
             return []
