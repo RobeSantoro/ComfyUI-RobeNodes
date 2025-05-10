@@ -171,7 +171,7 @@ class ListModelPath:
                 "directory": ("STRING", {
                     "default": "E:\\MODELS\\checkpoints",
                 }),
-                "model_type": (["ALL", "FLUX1", "HUN1", "SD15", "SDXL"], {
+                "model_type": (["ALL", "FLUX1", "HUN1", "SD15", "LCM", "SDXL"], {
                     "default": "ALL",
                 }),
                 "index": ("INT", {
