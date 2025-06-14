@@ -399,6 +399,52 @@ class BooleanPrimitive:
         return (value, str(value))
 
 
+class AudioWeights_To_FadeMask:
+    """
+    Converts audio weights (a single float or a list of floats)
+    into a multiline FadeMask string format, where each line is '{index}:({value}),'.
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "audio_weights": ("FLOAT", {"forceInput": True}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("fade_mask_string",)
+    FUNCTION = "convert_to_fade_mask"
+    CATEGORY = "RobeNodes"
+    DESCRIPTION = "Converts audio weights (float or list of floats) to FadeMask string: index:(value),"
+
+    def convert_to_fade_mask(self, audio_weights: any) -> tuple[str,]: # audio_weights can be float or list[float]
+        weights_list = []
+        if isinstance(audio_weights, (int, float)):
+            weights_list = [float(audio_weights)]
+        elif isinstance(audio_weights, list):
+            weights_list = audio_weights
+        else:
+            print(f"[AudioWeights_To_FadeMask] Warning: audio_weights is of unexpected type {type(audio_weights)}. Expected float or list. Returning empty string.")
+            return ("",)
+
+        if not weights_list:
+            return ("",)
+
+        fade_mask_lines = []
+        for i, weight_item in enumerate(weights_list):
+            try:
+                weight_val = float(weight_item) # Ensure weight is float for consistent formatting.
+                fade_mask_lines.append(f"{i}:({weight_val}),")
+            except (ValueError, TypeError):
+                print(f"[AudioWeights_To_FadeMask] Warning: Could not convert item '{weight_item}' at index {i} to float. Skipping.")
+                continue 
+        
+        result_string = "\n".join(fade_mask_lines)
+        
+        return (result_string,)
+
 
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
@@ -409,4 +455,5 @@ NODE_CLASS_MAPPINGS = {
     "Peaks Weights Generator 🐤": PeaksWeightsGenerator,
     "Image Input Switch 🐤": Image_Input_Switch,
     "Boolean Primitive 🐤": BooleanPrimitive,
+    "AudioWeights to FadeMask 🐤": AudioWeights_To_FadeMask,
 }
