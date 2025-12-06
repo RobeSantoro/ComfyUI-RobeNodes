@@ -161,3 +161,6 @@ cython_debug/
 
 .vscode/
 .stfolder/
+
+# Mac Junk
+.DS_Store

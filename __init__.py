@@ -10,6 +10,8 @@ import ast
 from PIL import Image, ImageOps
 import numpy as np
 import torch
+import cv2
+import base64
 
 
 class AnyType(str):
@@ -446,6 +448,76 @@ class AudioWeights_To_FadeMask:
         return (result_string,)
 
 
+def easySave(images, filename_prefix, output_type, prompt=None, extra_pnginfo=None):
+    """Save or Preview Image from https://github.com/yolain/ComfyUI-Easy-Use"""
+    from nodes import PreviewImage, SaveImage
+    if output_type in ["Hide", "None"]:
+        return list()
+    elif output_type in ["Preview", "Preview&Choose"]:
+        filename_prefix = 'easyPreview'
+        results = PreviewImage().save_images(images, filename_prefix, prompt, extra_pnginfo)
+        return results['ui']['images']
+    else:
+        results = SaveImage().save_images(images, filename_prefix, prompt, extra_pnginfo)
+        return results['ui']['images']
+
+
+class Load_Image_Base64:
+    """
+    Load Image from Base64 String from https://github.com/yolain/ComfyUI-Easy-Use
+    """
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "base64_data": ("STRING", {"default": ""}),
+                "image_output": (["Hide", "Preview", "Save", "Hide/Save"], {"default": "Preview"}),
+                "save_prefix": ("STRING", {"default": "ComfyUI"}),
+            },
+            "optional": {
+
+            },
+            "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
+        }
+
+    RETURN_TYPES = ("IMAGE", "MASK")
+    OUTPUT_NODE = True
+    FUNCTION = "load_image"
+    CATEGORY = "RobeNodes"
+
+    def convert_color(self, image,):
+        if len(image.shape) > 2 and image.shape[2] >= 4:
+            return cv2.cvtColor(image, cv2.COLOR_BGRA2RGB)
+        return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    def load_image(self, base64_data, image_output, save_prefix, prompt=None, extra_pnginfo=None):
+        nparr = np.frombuffer(base64.b64decode(base64_data), np.uint8)
+
+        result = cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED)
+        channels = cv2.split(result)
+        if len(channels) > 3:
+            mask = channels[3].astype(np.float32) / 255.0
+            mask = torch.from_numpy(mask)
+        else:
+            mask = torch.ones(channels[0].shape,
+                              dtype=torch.float32, device="cpu")
+
+        result = self.convert_color(result)
+        result = result.astype(np.float32) / 255.0
+        new_images = torch.from_numpy(result)[None,]
+
+        results = easySave(new_images, save_prefix, image_output, None, None)
+        mask = mask.unsqueeze(0)
+
+        if image_output in ("Hide", "Hide/Save"):
+            return {"ui": {},
+                    "result": (new_images, mask)}
+
+        return {"ui": {"images": results},
+                "result": (new_images, mask)}
+
+
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
@@ -456,4 +528,5 @@ NODE_CLASS_MAPPINGS = {
     "Image Input Switch 🐤": Image_Input_Switch,
     "Boolean Primitive 🐤": BooleanPrimitive,
     "AudioWeights to FadeMask 🐤": AudioWeights_To_FadeMask,
+    "Load Image Base64 🐤": Load_Image_Base64,
 }
