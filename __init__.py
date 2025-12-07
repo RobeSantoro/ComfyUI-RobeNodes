@@ -12,6 +12,7 @@ import numpy as np
 import torch
 import cv2
 import base64
+import folder_paths
 
 
 class AnyType(str):
@@ -462,7 +463,7 @@ def easySave(images, filename_prefix, output_type, prompt=None, extra_pnginfo=No
         return results['ui']['images']
 
 
-class Load_Image_Base64:
+class loadImageBase64:
     """
     Load Image from Base64 String from https://github.com/yolain/ComfyUI-Easy-Use
     """
@@ -518,6 +519,62 @@ class Load_Image_Base64:
                 "result": (new_images, mask)}
 
 
+class SaveImageJPEG:
+    """
+    Save images as JPEG files with configurable quality settings.
+    """
+
+    def __init__(self):
+        self.output_dir = folder_paths.get_output_directory()
+        self.type = "output"
+        self.prefix_append = ""
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "images": ("IMAGE", {"tooltip": "The images to save."}),
+                "filename_prefix": ("STRING", {"default": "ComfyUI", "tooltip": "The prefix for the file to save. This may include formatting information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% to include values from nodes."}),
+                "quality": ([100, 95, 90, 85, 80, 75, 70, 60, 50], {"default": 95}),
+            },
+            "hidden": {
+                "prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"
+            },
+        }
+
+    RETURN_TYPES = ()
+    FUNCTION = "save_images"
+    OUTPUT_NODE = True
+    CATEGORY = "RobeNodes"
+    DESCRIPTION = "Save images as JPEG files with configurable quality settings."
+
+    def save_images(self, images, filename_prefix="ComfyUI", quality=95, prompt=None, extra_pnginfo=None):
+        filename_prefix += self.prefix_append
+        full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(
+            filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
+        )
+        results = list()
+
+        for batch_number, image in enumerate(images):
+            i = 255. * image.cpu().numpy()
+            img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
+            
+            # Convert to RGB (JPEG doesn't support alpha channel)
+            img = img.convert("RGB")
+
+            filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
+            file = f"{filename_with_batch_num}_{counter:05}_.jpg"
+            img.save(os.path.join(full_output_folder, file), format="JPEG", quality=quality, subsampling=0)
+            results.append({
+                "filename": file,
+                "subfolder": subfolder,
+                "type": self.type
+            })
+            counter += 1
+
+        return {"ui": {"images": results}}
+
+
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
@@ -528,5 +585,6 @@ NODE_CLASS_MAPPINGS = {
     "Image Input Switch 🐤": Image_Input_Switch,
     "Boolean Primitive 🐤": BooleanPrimitive,
     "AudioWeights to FadeMask 🐤": AudioWeights_To_FadeMask,
-    "Load Image Base64 🐤": Load_Image_Base64,
+    "easy loadImageBase64": loadImageBase64,
+    "Save Image (JPEG) 🐤": SaveImageJPEG,
 }
