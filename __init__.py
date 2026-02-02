@@ -5,6 +5,9 @@ Custom nodes for the Comfy UI stable diffusion client.
 import os
 import glob
 import random
+import time
+import logging
+import warnings
 
 import ast
 from PIL import Image, ImageOps
@@ -12,7 +15,19 @@ import numpy as np
 import torch
 import cv2
 import base64
+from io import BytesIO
 import folder_paths
+
+# Suppress Gemini IMAGE_SAFETY warnings
+warnings.filterwarnings("ignore", message="IMAGE_SAFETY is not a valid FinishReason")
+
+# Set up logging for GeminiBanana
+logging.basicConfig(level=logging.INFO)
+_gemini_logger = logging.getLogger("GeminiBanana")
+
+# Suppress verbose HTTP logging from Google API client
+for _logger_name in ["httpx", "httpcore", "google.genai", "google.auth", "urllib3", "requests"]:
+    logging.getLogger(_logger_name).setLevel(logging.ERROR)
 
 
 class AnyType(str):
@@ -575,6 +590,366 @@ class SaveImageJPEG:
         return {"ui": {"images": results}}
 
 
+# ============================================================================
+# GeminiBanana - Minimal Gemini API Node for Image Generation
+# ============================================================================
+
+def _gemini_tensor_to_pil(tensor):
+    """Convert a ComfyUI tensor to PIL image"""
+    try:
+        tensor = tensor.cpu()
+        if tensor.dim() == 4:
+            tensor = tensor[0] if tensor.shape[0] >= 1 else tensor.squeeze(0)
+        if tensor.dim() == 3:
+            if tensor.shape[0] == 3 and tensor.shape[-1] != 3:
+                tensor = tensor.permute(1, 2, 0)
+        if tensor.dim() == 2:
+            tensor = tensor.unsqueeze(-1).repeat(1, 1, 3)
+        numpy_array = np.clip(tensor.numpy() * 255.0, 0, 255).astype(np.uint8)
+        return Image.fromarray(numpy_array)
+    except Exception as e:
+        _gemini_logger.error(f"Error in tensor_to_pil: {e}")
+        return Image.new('RGB', (512, 512), color=(99, 99, 99))
+
+
+def _gemini_resize_image(image, max_size=1024):
+    """Resize image while preserving aspect ratio"""
+    width, height = image.size
+    ratio = min(max_size / width, max_size / height)
+    new_width = int(width * ratio)
+    new_height = int(height * ratio)
+    return image.resize((new_width, new_height), Image.LANCZOS)
+
+
+def _gemini_prepare_batch_images(images, max_images=6, max_size=1024):
+    """Process batch images for Gemini API"""
+    prepared = []
+    try:
+        if images is None or (isinstance(images, torch.Tensor) and images.nelement() == 0):
+            return []
+        if isinstance(images, torch.Tensor) and images.dim() == 4:
+            batch_size = min(images.shape[0], max_images)
+            for i in range(batch_size):
+                pil_img = _gemini_tensor_to_pil(images[i])
+                pil_img = _gemini_resize_image(pil_img, max_size)
+                prepared.append(pil_img)
+        elif isinstance(images, torch.Tensor) and images.dim() == 3:
+            pil_img = _gemini_tensor_to_pil(images)
+            pil_img = _gemini_resize_image(pil_img, max_size)
+            prepared.append(pil_img)
+    except Exception as e:
+        _gemini_logger.error(f"Error preparing batch images: {e}")
+    return prepared
+
+
+def _gemini_create_placeholder(width=1024, height=1024):
+    """Create a placeholder image tensor"""
+    img = Image.new('RGB', (width, height), color=(99, 99, 99))
+    img_array = np.array(img).astype(np.float32) / 255.0
+    return torch.from_numpy(img_array)[None,]
+
+
+class GeminiBanana:
+    """
+    Minimal Gemini API node for image generation and analysis.
+    Supports gemini-2.5-flash-image and gemini-3-pro-image-preview models.
+    """
+
+    # Predefined model list
+    MODELS = [
+        "gemini-2.5-flash-image",
+        "gemini-3-pro-image-preview",
+    ]
+
+    # Aspect ratio dimensions
+    ASPECT_RATIOS = {
+        "none": (1024, 1024),
+        "1:1": (1024, 1024),
+        "16:9": (1408, 768),
+        "9:16": (768, 1408),
+        "4:3": (1280, 896),
+        "3:4": (896, 1280),
+    }
+
+    def __init__(self):
+        self.api_key = os.environ.get("GEMINI_API_KEY", "")
+        self.genai_available = self._check_genai()
+        if self.api_key:
+            _gemini_logger.info("Gemini API key found in environment")
+
+    def _check_genai(self):
+        """Check if Google Generative AI SDK is available"""
+        try:
+            from google import genai
+            return True
+        except ImportError:
+            _gemini_logger.error("google-genai not installed. Run: pip install google-genai")
+            return False
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "prompt": ("STRING", {
+                    "multiline": True,
+                    "default": ""
+                }),
+                "operation_mode": (
+                    ["generate_images", "analysis"],
+                    {"default": "generate_images"}
+                ),
+                "model_name": (cls.MODELS, {"default": cls.MODELS[0]}),
+                "temperature": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 1.0, "step": 0.01}),
+            },
+            "optional": {
+                "images": ("IMAGE",),
+                "api_key": ("STRING", {"default": ""}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFF}),
+                "batch_count": ("INT", {"default": 1, "min": 1, "max": 10}),
+                "aspect_ratio": (["none", "1:1", "16:9", "9:16", "4:3", "3:4"], {"default": "none"}),
+                "max_images": ("INT", {"default": 6, "min": 1, "max": 16}),
+                "max_output_tokens": ("INT", {"default": 8192, "min": 1, "max": 32768}),
+                "api_call_delay": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 60.0, "step": 0.1}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING", "IMAGE")
+    RETURN_NAMES = ("text", "image")
+    FUNCTION = "generate"
+    CATEGORY = "RobeNodes"
+    DESCRIPTION = "Generate images or analyze content using Google Gemini API (Nano Banana models)"
+
+    def generate(
+        self,
+        prompt,
+        operation_mode="generate_images",
+        model_name="gemini-2.5-flash-image",
+        temperature=0.8,
+        images=None,
+        api_key="",
+        seed=0,
+        batch_count=1,
+        aspect_ratio="1:1",
+        max_images=6,
+        max_output_tokens=8192,
+        api_call_delay=1.0,
+    ):
+        """Main generation function"""
+        
+        if not self.genai_available:
+            return ("ERROR: google-genai not installed. Run: pip install google-genai", _gemini_create_placeholder())
+
+        # Resolve API key
+        effective_key = api_key.strip() if api_key else self.api_key
+        if not effective_key:
+            return ("ERROR: No Gemini API key. Set GEMINI_API_KEY environment variable or provide in node.", _gemini_create_placeholder())
+
+        try:
+            from google import genai
+            from google.genai import types
+
+            # Create client
+            client = genai.Client(api_key=effective_key)
+
+            if operation_mode == "generate_images":
+                return self._generate_images(
+                    client, types, prompt, model_name, temperature, images,
+                    seed, batch_count, aspect_ratio, max_images, api_call_delay
+                )
+            else:
+                return self._analyze_content(
+                    client, types, prompt, model_name, temperature, images,
+                    seed, max_images, max_output_tokens
+                )
+
+        except Exception as e:
+            error_msg = str(e)
+            _gemini_logger.error(f"Gemini API error: {error_msg}")
+            if len(error_msg) > 500:
+                error_msg = error_msg[:500] + "... [truncated]"
+            return (f"ERROR: {error_msg}", _gemini_create_placeholder())
+
+    def _generate_images(
+        self, client, types, prompt, model_name, temperature, images,
+        seed, batch_count, aspect_ratio, max_images, api_call_delay
+    ):
+        """Generate images using Gemini"""
+        
+        target_width, target_height = self.ASPECT_RATIOS.get(aspect_ratio, (1024, 1024))
+        _gemini_logger.info(f"Generating {batch_count} images at {target_width}x{target_height}")
+
+        # Prepare reference images
+        ref_images = []
+        if images is not None and isinstance(images, torch.Tensor) and images.nelement() > 0:
+            ref_images = _gemini_prepare_batch_images(images, max_images, max(target_width, target_height))
+            _gemini_logger.info(f"Prepared {len(ref_images)} reference images")
+
+        all_images_bytes = []
+        all_text = []
+        status = ""
+
+        for i in range(batch_count):
+            if i > 0 and api_call_delay > 0:
+                _gemini_logger.info(f"Waiting {api_call_delay:.1f}s before next API call...")
+                time.sleep(api_call_delay)
+
+            try:
+                current_seed = (seed + i) % (2**31 - 1)
+                _gemini_logger.info(f"Batch {i+1}/{batch_count}, seed: {current_seed}")
+
+                # Build generation config
+                gen_config = types.GenerateContentConfig(
+                    temperature=temperature,
+                    response_modalities=["Text", "Image"],
+                    seed=current_seed,
+                    safety_settings=[
+                        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                    ],
+                )
+
+                # Build content
+                if aspect_ratio != "none":
+                    content_text = f"Generate a detailed, high-quality image with dimensions {target_width}x{target_height} of: {prompt}"
+                    print(content_text)
+                else:
+                    content_text = f"{prompt}"
+                    print(content_text)
+                if ref_images:
+                    content = [content_text] + ref_images
+                else:
+                    content = content_text
+
+                # Call API
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=content,
+                    config=gen_config,
+                )
+
+                # Extract images and text from response
+                batch_images = []
+                batch_text = ""
+
+                if hasattr(response, 'candidates') and response.candidates:
+                    for candidate in response.candidates:
+                        if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                            for part in candidate.content.parts:
+                                if hasattr(part, 'text') and part.text:
+                                    if "<!DOCTYPE" not in part.text and "<html" not in part.text.lower():
+                                        batch_text += part.text + "\n"
+                                if hasattr(part, 'inline_data') and part.inline_data:
+                                    try:
+                                        batch_images.append(part.inline_data.data)
+                                    except Exception as img_err:
+                                        _gemini_logger.error(f"Error extracting image: {img_err}")
+
+                if batch_images:
+                    all_images_bytes.extend(batch_images)
+                    status += f"Batch {i+1} (seed {current_seed}): {len(batch_images)} image(s)\n"
+                    if batch_text.strip():
+                        all_text.append(f"Batch {i+1}:\n{batch_text.strip()}")
+                else:
+                    status += f"Batch {i+1} (seed {current_seed}): No images generated\n"
+                    if batch_text.strip():
+                        all_text.append(f"Batch {i+1} (no image):\n{batch_text.strip()}")
+
+            except Exception as batch_err:
+                status += f"Batch {i+1} error: {str(batch_err)}\n"
+                _gemini_logger.error(f"Batch {i+1} error: {batch_err}")
+
+        # Convert all images to tensors
+        if all_images_bytes:
+            try:
+                pil_images = []
+                for img_bytes in all_images_bytes:
+                    pil_img = Image.open(BytesIO(img_bytes)).convert('RGB')
+                    pil_images.append(pil_img)
+
+                if not pil_images:
+                    return (f"Failed to process images.\n\n{status}", _gemini_create_placeholder())
+
+                # Ensure consistent dimensions
+                first_w, first_h = pil_images[0].size
+                for i in range(1, len(pil_images)):
+                    if pil_images[i].size != (first_w, first_h):
+                        pil_images[i] = pil_images[i].resize((first_w, first_h), Image.LANCZOS)
+
+                # Convert to tensors
+                tensors = []
+                for pil_img in pil_images:
+                    img_array = np.array(pil_img).astype(np.float32) / 255.0
+                    tensors.append(torch.from_numpy(img_array)[None,])
+
+                image_tensor = torch.cat(tensors, dim=0)
+
+                result_text = f"Generated {len(all_images_bytes)} images using {model_name}.\n"
+                result_text += f"Prompt: {prompt}\nSeed: {seed}\nResolution: {first_w}x{first_h}\n"
+                if all_text:
+                    result_text += "\n----- Generated Text -----\n" + "\n\n".join(all_text)
+                result_text += f"\n\n----- Status -----\n{status}"
+
+                return (result_text, image_tensor)
+
+            except Exception as proc_err:
+                _gemini_logger.error(f"Error processing images: {proc_err}")
+                return (f"Error processing images: {proc_err}\n\n{status}", _gemini_create_placeholder())
+        else:
+            return (f"No images generated with {model_name}.\n\n{status}", _gemini_create_placeholder())
+
+    def _analyze_content(
+        self, client, types, prompt, model_name, temperature, images,
+        seed, max_images, max_output_tokens
+    ):
+        """Analyze images/content using Gemini"""
+
+        gen_config = types.GenerateContentConfig(
+            max_output_tokens=max_output_tokens,
+            temperature=temperature,
+            seed=seed,
+            safety_settings=[
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            ],
+        )
+
+        # Prepare content
+        if images is not None and isinstance(images, torch.Tensor) and images.nelement() > 0:
+            ref_images = _gemini_prepare_batch_images(images, max_images, 1568)
+            if ref_images:
+                # Build multipart content
+                parts = [{"text": prompt}]
+                for img in ref_images:
+                    img_bytes = BytesIO()
+                    img.save(img_bytes, format='PNG')
+                    parts.append({
+                        "inline_data": {
+                            "mime_type": "image/png",
+                            "data": img_bytes.getvalue()
+                        }
+                    })
+                contents = [{"parts": parts}]
+            else:
+                contents = [{"text": prompt}]
+        else:
+            contents = [{"text": prompt}]
+
+        try:
+            response = client.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=gen_config,
+            )
+            return (response.text, _gemini_create_placeholder())
+        except Exception as e:
+            _gemini_logger.error(f"Analysis error: {e}")
+            return (f"ERROR: {str(e)}", _gemini_create_placeholder())
+
+
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
@@ -587,4 +962,5 @@ NODE_CLASS_MAPPINGS = {
     "AudioWeights to FadeMask 🐤": AudioWeights_To_FadeMask,
     "easy loadImageBase64": loadImageBase64,
     "Save Image (JPEG) 🐤": SaveImageJPEG,
+    "GeminiBanana 🍌": GeminiBanana,
 }
