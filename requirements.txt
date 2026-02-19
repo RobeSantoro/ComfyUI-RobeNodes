@@ -1,0 +1,4 @@
+# Minimal non-core dependencies for ComfyUI-RobeNodes.
+# ComfyUI itself provides core runtime packages like torch and internal modules.
+opencv-python
+google-genai
