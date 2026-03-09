@@ -392,6 +392,38 @@ class Image_Input_Switch:
             return (image_b, )
 
 
+class Latent_Input_Switch:
+    """
+    Switch between two latents based on a boolean input. From WAS Suite/Logic
+    """
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "latent_a": ("LATENT",),
+                "latent_b": ("LATENT",),
+                "boolean": ("BOOLEAN", {"forceInput": True}),
+            }
+        }
+
+    RETURN_TYPES = ("LATENT",)
+    FUNCTION = "latent_input_switch"
+
+    CATEGORY = "RobeNodes"
+    DESCRIPTION = "Switch between two latents based on a boolean input."
+
+    def latent_input_switch(self, latent_a, latent_b, boolean=True):
+
+        if boolean:
+            return (latent_a, )
+        else:
+            return (latent_b, )
+
+
 class BooleanPrimitive:
     """
     Primitive node to convert a boolean value to a string and vice versa. From Art Venture/Utils
@@ -958,6 +990,7 @@ NODE_CLASS_MAPPINGS = {
     "Indices Generator 🐤": IndicesGenerator,
     "Peaks Weights Generator 🐤": PeaksWeightsGenerator,
     "Image Input Switch 🐤": Image_Input_Switch,
+    "Latent Input Switch 🐤": Latent_Input_Switch,
     "Boolean Primitive 🐤": BooleanPrimitive,
     "AudioWeights to FadeMask 🐤": AudioWeights_To_FadeMask,
     "easy loadImageBase64": loadImageBase64,
