@@ -8,6 +8,9 @@ import random
 import time
 import logging
 import warnings
+import json
+import piexif
+import piexif.helper
 
 import ast
 from PIL import Image, ImageOps
@@ -582,7 +585,7 @@ class SaveImageJPEG:
             "required": {
                 "images": ("IMAGE", {"tooltip": "The images to save."}),
                 "filename_prefix": ("STRING", {"default": "ComfyUI", "tooltip": "The prefix for the file to save. This may include formatting information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% to include values from nodes."}),
-                "quality": ([100, 95, 90, 85, 80, 75, 70, 60, 50], {"default": 95}),
+                "quality": ("INT", {"default": 95, "min": 1, "max": 100, "step": 1}),
             },
             "hidden": {
                 "prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"
@@ -597,21 +600,46 @@ class SaveImageJPEG:
 
     def save_images(self, images, filename_prefix="ComfyUI", quality=95, prompt=None, extra_pnginfo=None):
         filename_prefix += self.prefix_append
+        quality = int(quality)
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(
             filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
         )
         results = list()
 
+        # Prepare the metadata dictionary (similar to how PNG stores it)
+        metadata = {}
+        if prompt is not None:
+            metadata["prompt"] = prompt
+        if extra_pnginfo is not None:
+            for x in extra_pnginfo:
+                metadata[x] = extra_pnginfo[x]
+
+        # Convert metadata to a JSON string
+        metadata_json = json.dumps(metadata)
+
         for batch_number, image in enumerate(images):
             i = 255. * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
-            
-            # Convert to RGB (JPEG doesn't support alpha channel)
             img = img.convert("RGB")
+
+            # Create EXIF data with the JSON string in the UserComment field
+            exif_dict = {"Exif": {}}
+            user_comment = piexif.helper.UserComment.dump(metadata_json, encoding="unicode")
+            exif_dict["Exif"][piexif.ExifIFD.UserComment] = user_comment
+            exif_bytes = piexif.dump(exif_dict)
 
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
             file = f"{filename_with_batch_num}_{counter:05}_.jpg"
-            img.save(os.path.join(full_output_folder, file), format="JPEG", quality=quality, subsampling=0)
+
+            # Save with the 'exif' parameter
+            img.save(
+                os.path.join(full_output_folder, file), 
+                format="JPEG", 
+                quality=quality, 
+                subsampling=0, 
+                exif=exif_bytes
+            )
+            
             results.append({
                 "filename": file,
                 "subfolder": subfolder,
@@ -991,7 +1019,7 @@ NODE_CLASS_MAPPINGS = {
     "Peaks Weights Generator 🐤": PeaksWeightsGenerator,
     "Image Input Switch 🐤": Image_Input_Switch,
     "Latent Input Switch 🐤": Latent_Input_Switch,
-    "Boolean Primitive 🐤": BooleanPrimitive,
+    # "Boolean Primitive 🐤": BooleanPrimitive,
     "AudioWeights to FadeMask 🐤": AudioWeights_To_FadeMask,
     "easy loadImageBase64": loadImageBase64,
     "Save Image (JPEG) 🐤": SaveImageJPEG,
