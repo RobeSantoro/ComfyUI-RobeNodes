@@ -302,7 +302,8 @@ class IndicesGenerator:
 
 class PeaksWeightsGenerator:
     """
-    Generates a list of weights and a peak count from a binary string.
+    Generates a list of weights from a binary string to be used with the
+    "Generate Peaks Weights" node from Yvann Nodes
     """
 
     @classmethod
@@ -313,7 +314,7 @@ class PeaksWeightsGenerator:
                     "default": 0,
                     "min": 0,
                 }),
-                "one_indexes": ("STRING", {
+                "one_indices": ("STRING", {
                     "default": "0, 4, 8, 12",
                     "forceInput": False
                 }),
@@ -333,7 +334,7 @@ class PeaksWeightsGenerator:
     CATEGORY = "RobeNodes"
     DESCRIPTION = "Generates a list of weights and a peak count from a binary string."
 
-    def generate_peaks(self, peaks_binary_string, specify_peaks_manually, frames_count, one_indexes):
+    def generate_peaks(self, peaks_binary_string, specify_peaks_manually, frames_count, one_indices):
         if specify_peaks_manually:
             try:
                 peaks_binary = ast.literal_eval(peaks_binary_string)
@@ -350,7 +351,7 @@ class PeaksWeightsGenerator:
         else:
             peaks_weights = [0] * frames_count
             try:
-                indices = [int(i.strip()) for i in one_indexes.split(",") if i.strip()]
+                indices = [int(i.strip()) for i in one_indices.split(",") if i.strip()]
                 for index in indices:
                     if 0 <= index < frames_count:
                         peaks_weights[index] = 1
