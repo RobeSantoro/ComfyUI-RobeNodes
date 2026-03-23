@@ -423,9 +423,9 @@ class Latent_Input_Switch:
     def latent_input_switch(self, latent_a, latent_b, boolean=True):
 
         if boolean:
-            return (latent_a, )
-        else:
             return (latent_b, )
+        else:
+            return (latent_a, )
 
 
 class BooleanPrimitive:
