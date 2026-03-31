@@ -16,15 +16,25 @@ The package includes:
   - Automatic EXIF orientation handling
   - RGB conversion
 
-## Getting Started
-1. Clone or download this repository
-2. Import into the custom_nodes directory of your ComfyUI custom node directory
-3. Restart ComfyUI to load the new nodes
+## Install
+### ComfyUI Manager
+After this repo is published to the Comfy Registry, install it from the ComfyUI Manager by searching for `Robe Nodes`.
+
+### Manual install
+1. Clone this repository into your `ComfyUI/custom_nodes` directory
+2. Restart ComfyUI
+
+## Registry metadata
+This repo includes a `pyproject.toml` and a GitHub Actions workflow for publishing to the Comfy Registry, which powers the current ComfyUI Manager UI.
+
+Before the first publish:
+1. Create a publisher on the Comfy Registry
+2. Confirm that the node id in `pyproject.toml` is the one you want to keep
+3. Add a GitHub repository secret named `REGISTRY_ACCESS_TOKEN`
+4. Bump the version in `pyproject.toml` before each release
 
 ## Dependencies
-- PIL (Pillow)
-- numpy
-- torch
+Runtime dependencies are listed in [requirements.txt](requirements.txt). Core packages provided by ComfyUI itself are not repeated there.
 
 ## License
 This project is licensed under the MIT License.
