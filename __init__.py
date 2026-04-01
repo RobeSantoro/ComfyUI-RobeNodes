@@ -607,39 +607,38 @@ class SaveImageJPEG:
         )
         results = list()
 
-        # Prepare the metadata dictionary (similar to how PNG stores it)
+        # JPEG EXIF is size-limited, so only persist the prompt and skip
+        # workflow/other frontend metadata from extra_pnginfo.
         metadata = {}
         if prompt is not None:
             metadata["prompt"] = prompt
-        if extra_pnginfo is not None:
-            for x in extra_pnginfo:
-                metadata[x] = extra_pnginfo[x]
+        print(metadata)
 
-        # Convert metadata to a JSON string
-        metadata_json = json.dumps(metadata)
+        exif_bytes = None
+        if metadata:
+            metadata_json = json.dumps(metadata, ensure_ascii=False, separators=(",", ":"))
+            exif_dict = {"Exif": {}}
+            user_comment = piexif.helper.UserComment.dump(metadata_json, encoding="unicode")
+            exif_dict["Exif"][piexif.ExifIFD.UserComment] = user_comment
+            exif_bytes = piexif.dump(exif_dict)
 
         for batch_number, image in enumerate(images):
             i = 255. * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             img = img.convert("RGB")
 
-            # Create EXIF data with the JSON string in the UserComment field
-            exif_dict = {"Exif": {}}
-            user_comment = piexif.helper.UserComment.dump(metadata_json, encoding="unicode")
-            exif_dict["Exif"][piexif.ExifIFD.UserComment] = user_comment
-            exif_bytes = piexif.dump(exif_dict)
-
             filename_with_batch_num = filename.replace("%batch_num%", str(batch_number))
             file = f"{filename_with_batch_num}_{counter:05}_.jpg"
 
-            # Save with the 'exif' parameter
-            img.save(
-                os.path.join(full_output_folder, file), 
-                format="JPEG", 
-                quality=quality, 
-                subsampling=0, 
-                exif=exif_bytes
-            )
+            save_kwargs = {
+                "format": "JPEG",
+                "quality": quality,
+                "subsampling": 0,
+            }
+            if exif_bytes is not None:
+                save_kwargs["exif"] = exif_bytes
+
+            img.save(os.path.join(full_output_folder, file), **save_kwargs)
             
             results.append({
                 "filename": file,
