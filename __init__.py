@@ -587,6 +587,7 @@ class SaveImageJPEG:
                 "images": ("IMAGE", {"tooltip": "The images to save."}),
                 "filename_prefix": ("STRING", {"default": "ComfyUI", "tooltip": "The prefix for the file to save. This may include formatting information such as %date:yyyy-MM-dd% or %Empty Latent Image.width% to include values from nodes."}),
                 "quality": ("INT", {"default": 95, "min": 1, "max": 100, "step": 1}),
+                "save_metadata": ("BOOLEAN", {"default": True, "tooltip": "Store prompt metadata in JPEG EXIF."}),
             },
             "hidden": {
                 "prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"
@@ -599,7 +600,7 @@ class SaveImageJPEG:
     CATEGORY = "RobeNodes"
     DESCRIPTION = "Save images as JPEG files with configurable quality settings."
 
-    def save_images(self, images, filename_prefix="ComfyUI", quality=95, prompt=None, extra_pnginfo=None):
+    def save_images(self, images, filename_prefix="ComfyUI", quality=95, save_metadata=True, prompt=None, extra_pnginfo=None):
         filename_prefix += self.prefix_append
         quality = int(quality)
         full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(
@@ -610,9 +611,8 @@ class SaveImageJPEG:
         # JPEG EXIF is size-limited, so only persist the prompt and skip
         # workflow/other frontend metadata from extra_pnginfo.
         metadata = {}
-        if prompt is not None:
+        if save_metadata and prompt is not None:
             metadata["prompt"] = prompt
-        print(metadata)
 
         exif_bytes = None
         if metadata:
