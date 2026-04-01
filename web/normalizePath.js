@@ -126,16 +126,7 @@ function isStringEntryWidget(widget, value) {
 		return false;
 	}
 
-	const widgetType = `${widget?.type ?? ""}`.toLowerCase();
-	if (widgetType.includes("combo")) {
-		return false;
-	}
-
-	if (widgetType.includes("string") || widgetType.includes("text")) {
-		return true;
-	}
-
-	return !Array.isArray(widget?.options?.values);
+	return true;
 }
 
 function normalizeStringValue(widgetName, value, targetStyle) {
