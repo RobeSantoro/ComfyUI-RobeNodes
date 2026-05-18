@@ -742,12 +742,13 @@ def _gemini_create_placeholder(width=1024, height=1024):
 class GeminiBanana:
     """
     Minimal Gemini API node for image generation and analysis.
-    Supports gemini-2.5-flash-image and gemini-3-pro-image-preview models.
+    Supports Gemini Nano Banana image models.
     """
 
     # Predefined model list
     MODELS = [
         "gemini-2.5-flash-image",
+        "gemini-3.1-flash-image-preview",
         "gemini-3-pro-image-preview",
     ]
 
