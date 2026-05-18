@@ -257,6 +257,36 @@ class ListModelPath:
         return (model_paths_list, selected_model, len(models))
 
 
+class GetFileName:
+    """
+    Extracts a file name from a path or file string without its extension.
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "file_path": ("STRING", {
+                    "default": "",
+                    "forceInput": True,
+                }),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("file_name",)
+    FUNCTION = "execute"
+    CATEGORY = "RobeNodes"
+    DESCRIPTION = "Returns the file name from a path or file string without its extension."
+
+    def execute(self, file_path):
+        normalized_path = str(file_path).replace("\\", "/")
+        file_name = os.path.basename(normalized_path)
+        file_name_without_extension = os.path.splitext(file_name)[0]
+
+        return (file_name_without_extension,)
+
+
 class IndicesGenerator:
     """
     Divides the frames count by the number of images and
@@ -1015,6 +1045,7 @@ NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
     "List Image Path 🐤": ListImagePath,
     "List Model Path 🐤": ListModelPath,
+    "Get File Name 🐤": GetFileName,
     "Indices Generator 🐤": IndicesGenerator,
     "Peaks Weights Generator 🐤": PeaksWeightsGenerator,
     "Image Input Switch 🐤": Image_Input_Switch,
