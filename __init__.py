@@ -273,18 +273,22 @@ class GetFileName:
             }
         }
 
-    RETURN_TYPES = ("STRING",)
-    RETURN_NAMES = ("file_name",)
+    RETURN_TYPES = ("STRING", "STRING")
+    RETURN_NAMES = ("file_name", "parent_folder")
     FUNCTION = "execute"
     CATEGORY = "RobeNodes"
-    DESCRIPTION = "Returns the file name from a path or file string without its extension."
+    DESCRIPTION = "Returns the file name without extension and its immediate parent folder with a trailing slash."
 
     def execute(self, file_path):
         normalized_path = str(file_path).replace("\\", "/")
+        normalized_path = normalized_path.rstrip("/")
         file_name = os.path.basename(normalized_path)
         file_name_without_extension = os.path.splitext(file_name)[0]
+        parent_path = os.path.dirname(normalized_path)
+        parent_folder_name = os.path.basename(parent_path)
+        parent_folder = f"{parent_folder_name}/" if parent_folder_name else ""
 
-        return (file_name_without_extension,)
+        return (file_name_without_extension, parent_folder)
 
 
 class IndicesGenerator:
