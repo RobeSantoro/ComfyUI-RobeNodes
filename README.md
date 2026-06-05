@@ -16,6 +16,11 @@ The package includes:
   - Automatic EXIF orientation handling
   - RGB conversion
 
+- **grokImage**: A Grok Imagine node for text-to-image and image-to-image generation through the xAI API.
+  - Uses `XAI_API_KEY` from the environment or the node's `api_key` input
+  - Supports URL and base64 image responses
+  - Returns a red 512x512 image tensor with an error message if the API call fails
+
 ## Install
 ### ComfyUI Manager
 After this repo is published to the Comfy Registry, install it from the ComfyUI Manager by searching for `Robe Nodes`.

@@ -3,3 +3,4 @@
 opencv-python
 google-genai
 piexif
+requests

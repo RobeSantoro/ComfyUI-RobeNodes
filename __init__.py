@@ -1045,6 +1045,267 @@ class GeminiBanana:
             return (f"ERROR: {str(e)}", _gemini_create_placeholder())
 
 
+# ============================================================================
+# grokImage - xAI Grok Imagine Image Node
+# ============================================================================
+
+_grok_logger = logging.getLogger("grokImage")
+
+_GROK_IMAGE_MODELS = [
+    "grok-imagine-image-quality",
+    "grok-imagine-image",
+]
+
+_GROK_ASPECT_RATIOS = [
+    "1:1",
+    "16:9",
+    "9:16",
+    "4:3",
+    "3:4",
+    "3:2",
+    "2:3",
+    "2:1",
+    "1:2",
+    "19.5:9",
+    "9:19.5",
+    "20:9",
+    "9:20",
+    "auto",
+]
+
+
+def _grok_error_tensor(width=512, height=512):
+    image = np.zeros((height, width, 3), dtype=np.float32)
+    image[:, :, 0] = 1.0
+    return torch.from_numpy(image)[None,]
+
+
+def _grok_tensor_to_pil(tensor):
+    try:
+        tensor = tensor.detach().cpu()
+        if tensor.dim() == 4:
+            tensor = tensor[0]
+        if tensor.dim() == 3 and tensor.shape[0] in (1, 3, 4) and tensor.shape[-1] not in (1, 3, 4):
+            tensor = tensor.permute(1, 2, 0)
+        if tensor.dim() == 2:
+            tensor = tensor.unsqueeze(-1)
+
+        numpy_array = np.clip(tensor.numpy() * 255.0, 0, 255).astype(np.uint8)
+        if numpy_array.ndim == 3 and numpy_array.shape[-1] == 1:
+            numpy_array = np.repeat(numpy_array, 3, axis=-1)
+
+        return Image.fromarray(numpy_array).convert("RGB")
+    except Exception as e:
+        _grok_logger.error(f"Failed to convert tensor to PIL image: {e}")
+        return Image.new("RGB", (512, 512), color=(255, 0, 0))
+
+
+def _grok_tensor_to_data_uri(tensor):
+    image = _grok_tensor_to_pil(tensor)
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    encoded = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return f"data:image/png;base64,{encoded}"
+
+
+def _grok_bytes_to_tensor(image_bytes):
+    image = Image.open(BytesIO(image_bytes))
+    image = ImageOps.exif_transpose(image).convert("RGB")
+    numpy_array = np.array(image).astype(np.float32) / 255.0
+    return torch.from_numpy(numpy_array)[None,]
+
+
+def _grok_base64_to_tensor(encoded_image):
+    if "," in encoded_image:
+        encoded_image = encoded_image.split(",", 1)[1]
+    image_bytes = base64.b64decode(encoded_image)
+    return _grok_bytes_to_tensor(image_bytes)
+
+
+def _grok_url_to_tensor(url, timeout_seconds):
+    import requests
+
+    response = requests.get(url, timeout=timeout_seconds)
+    response.raise_for_status()
+    return _grok_bytes_to_tensor(response.content)
+
+
+def _grok_extract_error(response, payload):
+    if isinstance(payload, dict):
+        error = payload.get("error")
+        if isinstance(error, dict):
+            return error.get("message") or error.get("code") or str(error)
+        if error:
+            return str(error)
+        for key in ("message", "detail"):
+            if payload.get(key):
+                return str(payload[key])
+    return response.text or f"HTTP {response.status_code}"
+
+
+def _grok_post_json(endpoint, api_key, payload, timeout_seconds):
+    import requests
+
+    response = requests.post(
+        f"https://api.x.ai/v1/images/{endpoint}",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        json=payload,
+        timeout=timeout_seconds,
+    )
+
+    try:
+        response_payload = response.json()
+    except ValueError:
+        response_payload = {}
+
+    if not response.ok:
+        return {"error": True, "message": _grok_extract_error(response, response_payload)}
+
+    return response_payload
+
+
+class GrokImage:
+    """
+    Generate or edit images with xAI Grok Imagine.
+    Without image_ref, calls /v1/images/generations.
+    With image_ref, calls /v1/images/edits using a JSON data URI payload.
+    """
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "prompt": ("STRING", {
+                    "multiline": True,
+                    "default": "A futuristic city in cyberpunk style",
+                }),
+                "model_name": (_GROK_IMAGE_MODELS, {"default": _GROK_IMAGE_MODELS[0]}),
+                "aspect_ratio": (_GROK_ASPECT_RATIOS, {"default": "1:1"}),
+                "resolution": (["1k", "2k"], {"default": "1k"}),
+                "n": ("INT", {
+                    "default": 1,
+                    "min": 1,
+                    "max": 10,
+                    "step": 1,
+                    "tooltip": "Number of images to generate.",
+                }),
+            },
+            "optional": {
+                "image_ref": ("IMAGE", {
+                    "tooltip": "Reference image for image-to-image editing.",
+                }),
+                "api_key": ("STRING", {"default": ""}),
+                "response_format": (["url", "b64_json"], {"default": "url"}),
+                "timeout_seconds": ("INT", {
+                    "default": 180,
+                    "min": 30,
+                    "max": 600,
+                    "step": 5,
+                }),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE", "STRING")
+    RETURN_NAMES = ("image", "url_or_error")
+    FUNCTION = "generate"
+    CATEGORY = "RobeNodes/Grok"
+    DESCRIPTION = "Generate or edit images with xAI Grok Imagine."
+
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        return float("NaN")
+
+    def generate(
+        self,
+        prompt,
+        model_name,
+        aspect_ratio,
+        resolution,
+        n,
+        image_ref=None,
+        api_key="",
+        response_format="url",
+        timeout_seconds=180,
+    ):
+        effective_key = (api_key or "").strip() or os.getenv("XAI_API_KEY", "")
+        if not effective_key:
+            return (_grok_error_tensor(), "Error: XAI_API_KEY is required.")
+
+        payload = {
+            "model": model_name,
+            "prompt": prompt,
+            "n": int(n),
+            "response_format": response_format,
+            "resolution": resolution,
+        }
+
+        try:
+            if image_ref is None:
+                endpoint = "generations"
+                payload["aspect_ratio"] = aspect_ratio
+                _grok_logger.info("[grokImage] Mode: text-to-image")
+            else:
+                endpoint = "edits"
+                payload["image"] = {
+                    "type": "image_url",
+                    "url": _grok_tensor_to_data_uri(image_ref),
+                }
+                _grok_logger.info("[grokImage] Mode: image-to-image edit")
+
+            response_payload = _grok_post_json(
+                endpoint=endpoint,
+                api_key=effective_key,
+                payload=payload,
+                timeout_seconds=timeout_seconds,
+            )
+
+            if response_payload.get("error"):
+                message = response_payload.get("message", "Unknown xAI API error.")
+                _grok_logger.error(f"[grokImage] API error: {message}")
+                return (_grok_error_tensor(), f"Error: {message}")
+
+            data = response_payload.get("data", [])
+            if not data:
+                return (_grok_error_tensor(), "Error: empty response from xAI API.")
+
+            tensors = []
+            first_url = ""
+            for item in data:
+                if not isinstance(item, dict):
+                    continue
+
+                url = item.get("url", "")
+                b64_json = item.get("b64_json", "")
+                if url:
+                    tensors.append(_grok_url_to_tensor(url, timeout_seconds))
+                    if not first_url:
+                        first_url = url
+                elif b64_json:
+                    tensors.append(_grok_base64_to_tensor(b64_json))
+
+            if not tensors:
+                return (_grok_error_tensor(), "Error: no valid images in xAI API response.")
+
+            first_height, first_width = tensors[0].shape[1], tensors[0].shape[2]
+            normalized_tensors = [tensors[0]]
+            for tensor in tensors[1:]:
+                if tensor.shape[1] != first_height or tensor.shape[2] != first_width:
+                    pil_image = _grok_tensor_to_pil(tensor).resize((first_width, first_height), Image.LANCZOS)
+                    image_array = np.array(pil_image).astype(np.float32) / 255.0
+                    tensor = torch.from_numpy(image_array)[None,]
+                normalized_tensors.append(tensor)
+
+            output_text = first_url or f"Generated {len(normalized_tensors)} image(s) with {response_format}."
+            return (torch.cat(normalized_tensors, dim=0), output_text)
+
+        except Exception as e:
+            _grok_logger.error(f"[grokImage] Error: {e}")
+            return (_grok_error_tensor(), f"Error: {str(e)}")
+
+
 # A dictionary that contains all nodes you want to export with their names
 NODE_CLASS_MAPPINGS = {
     "List Video Path 🐤": ListVideoPath,
@@ -1060,6 +1321,7 @@ NODE_CLASS_MAPPINGS = {
     "easy loadImageBase64": loadImageBase64,
     "Save Image (JPEG) 🐤": SaveImageJPEG,
     "GeminiBanana 🍌": GeminiBanana,
+    "grokImage": GrokImage,
 }
 
 WEB_DIRECTORY = "./web"
